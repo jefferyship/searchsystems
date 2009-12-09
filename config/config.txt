@@ -1,0 +1,24 @@
+#连接数据库的连接
+Host	=	192.168.1.111
+DB		=	mixue_db
+Usr		=	kernaling.wong
+Passwd	=	ilovehua
+Port	=	3306
+MaxConn	=	5
+
+#Mina连接参数
+SERVER_PORT	=	1985
+
+#MemcachedHost,多个以 "," 隔开
+MemcachedHost	=	192.168.1.111:3335
+
+#SphinxSearch的主机与端口
+SphinxPath	=	/usr/loca/sphinx/
+SphinxHost	=	192.168.1.111
+SphinxPort	=	3331
+SphinxTable	=	MB_Mark_Table
+RunMainIndexPath	=	./config/RunMainIndex.sh
+RunDeltaIndexPath	=	./config/RunDeltaIndex.sh
+RunxMergeIndexPath	=	./config/RunMergeIndex.sh
+
+dayBefor	=	30
