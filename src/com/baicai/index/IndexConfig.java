@@ -30,14 +30,12 @@ public class IndexConfig {
 	}
 	
 	/**
-	 * 		默认表示每一天的凌晨 0 点开始重围索引
+	 * 		默认表示每一天的凌晨 0 点开始重做索引
 	 * @return
 	 */
 	public boolean canResetIndex(){
-		
 		long timeInLong = TimeUtils.TimeInMills(0);
 		String tNowDay = TimeUtils.TimeInFormate(timeFormat, timeInLong);
-
 		return !nowDay.equals(tNowDay);
 	}
 }

@@ -22,13 +22,13 @@ import com.kernaling.utils.TimeUtils;
  */
 public class SphinxIndex extends Thread{
 
-	private long sleepTime = 20 * 60L;	//默认是 20分钟
-	private String RunMainIndexPath = SysConstants.RunMainIndexPath;
-	private String RunDeltaIndexPath = SysConstants.RunDeltaIndexPath;
-	private String RunxMergeIndexPath = SysConstants.RunxMergeIndexPath;
-	private String SphinxTable = SysConstants.SphinxTable;
-	private int dayBefor = SysConstants.dayBefor;
-	final private IndexConfig ic;
+	protected long sleepTime = 20 * 60L;	//默认是 20分钟
+	protected String RunMainIndexPath = SysConstants.RunMainIndexPath;
+	protected String RunDeltaIndexPath = SysConstants.RunDeltaIndexPath;
+	protected String RunxMergeIndexPath = SysConstants.RunxMergeIndexPath;
+	protected String SphinxTable = SysConstants.SphinxTable;
+	protected int dayBefor = SysConstants.dayBefor;
+	final protected IndexConfig ic;
 	public SphinxIndex(IndexConfig ic){
 		this.ic = ic;
 		if(ic == null){
@@ -50,13 +50,15 @@ public class SphinxIndex extends Thread{
 			//再重建增量索引
 			ArrayList<String> shellList = FileUtils.readBufferLine(RunDeltaIndexPath, "utf-8");
 			for(String tShell:shellList){				
-				ShellExecutor.shellExe(tShell, "utf-8");
+				String result = ShellExecutor.shellExe(tShell, "utf-8");
+				System.out.println(new Date() + "\t" + result);
 			}
 			
 			//合并并更新索引
 			shellList = FileUtils.readBufferLine(RunxMergeIndexPath, "utf-8");
 			for(String tShell:shellList){				
-				ShellExecutor.shellExe(tShell, "utf-8");
+				String result = ShellExecutor.shellExe(tShell, "utf-8");
+				System.out.println(new Date() + "\t" + result);
 			}
 			
 			start = TimeUtils.TimeInMills(0) - start;
@@ -125,7 +127,12 @@ public class SphinxIndex extends Thread{
 		SysConstants.GrobleCache.clear();//同时把一些辅助缓存也清除
 		ic.preLoadData();		//加载一定的数据
 		//首先重建旧索引
-		ShellExecutor.shellExe(RunMainIndexPath, "utf-8");
+		ArrayList<String> shellList = FileUtils.readBufferLine(RunMainIndexPath, "utf-8");
+		for(String tShell:shellList){				
+			String result = ShellExecutor.shellExe(tShell, "utf-8");
+			System.out.println(new Date() + "\t" + result);
+		}
+//		ShellExecutor.shellExe(RunMainIndexPath, "utf-8");
 		long updateTime[] = updateTime();
 		
 		if(updateTime == null){
@@ -135,10 +142,18 @@ public class SphinxIndex extends Thread{
 		
 		ic.updateSpecial(updateTime[0] , updateTime[1]);
 		//再重建增量索引
-		ShellExecutor.shellExe(RunDeltaIndexPath, "utf-8");
+		shellList = FileUtils.readBufferLine(RunDeltaIndexPath, "utf-8");
+		for(String tShell:shellList){				
+			String result = ShellExecutor.shellExe(tShell, "utf-8");
+			System.out.println(new Date() + "\t" + result);
+		}
 		//合并并更新索引
-		ShellExecutor.shellExe(RunxMergeIndexPath, "utf-8");
-		
+
+		shellList = FileUtils.readBufferLine(RunxMergeIndexPath, "utf-8");
+		for(String tShell:shellList){				
+			String result = ShellExecutor.shellExe(tShell, "utf-8");
+			System.out.println(new Date() + "\t" + result);
+		}
 		System.out.println(new Date() + "\t初始化完成....");
 	}
 }
