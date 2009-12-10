@@ -13,15 +13,40 @@ import com.kernaling.utils.TimeUtils;
  *		接收到请求后,DefaultRequestProcess会分发相应的任务给DefaultStrategy类去处理
  *		如:组装参数,如何make搜索结果的xml,和统计统结果
  */
-public abstract class DefaultStrategy {
+public abstract class BaseStrategy {
 	
 	protected SphinxUtils searchUtils = null;
 	public void setSphinxSearch(SphinxUtils searchUtils){
 		this.searchUtils = searchUtils;
 	}
+	
+	/**
+	 * 
+	 * @param resultList
+	 * @param startTime
+	 * @param pb
+	 * @return
+	 * 			产生搜索的结果
+	 */
 	public abstract String makeResultXML(List<Map<String,Object>> resultList , long startTime ,ParamBean pb);
+	/**
+	 * 
+	 * @param resultList
+	 * @param startTime
+	 * @param pb
+	 * @return
+	 * 			产生基本的统计结果
+	 */
 	public abstract String makeStaticXML(List<Map<String,Object>> resultList , long startTime ,ParamBean pb);
 	
+	/**
+	 * 
+	 * @param infoMap
+	 * @param startTime
+	 * @param pb
+	 * @return
+	 * 			组成一个页面返回的信息,已经默认实现了
+	 */
 	public String makeInfoXML(Map<String,Object> infoMap , long startTime ,ParamBean pb){
 		long timeInUsed = TimeUtils.TimeInMills(0) - startTime;
 		long Total = (Integer)infoMap.get("Total");
@@ -44,6 +69,7 @@ public abstract class DefaultStrategy {
 		sb.append("</TimeInUsed>");
 		sb.append(keyWords);
 		sb.append("</TimeInUsed>");
+		sb.append("</Info>");
 		
 		return sb.toString();
 	}

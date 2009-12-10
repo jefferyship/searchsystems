@@ -28,6 +28,7 @@ public class SphinxIndex extends Thread{
 	protected String RunxMergeIndexPath = SysConstants.RunxMergeIndexPath;
 	protected String SphinxTable = SysConstants.SphinxTable;
 	protected int dayBefor = SysConstants.dayBefor;
+	private String SphinxPath = SysConstants.SphinxPath;
 	final protected IndexConfig ic;
 	public SphinxIndex(IndexConfig ic){
 		this.ic = ic;
@@ -47,16 +48,22 @@ public class SphinxIndex extends Thread{
 				updateTime = updateTime();
 			}
 			ic.updateSpecial(updateTime[0] , updateTime[1]);
+			long lockedTime = TimeUtils.nowTimeInSec(); 
+			LockTime(lockedTime);
 			//再重建增量索引
 			ArrayList<String> shellList = FileUtils.readBufferLine(RunDeltaIndexPath, "utf-8");
-			for(String tShell:shellList){				
+			for(String tShell:shellList){
+				System.out.println("tShell:" + tShell);
+				tShell = tShell.replace("{#SphinxPath}", SphinxPath);
 				String result = ShellExecutor.shellExe(tShell, "utf-8");
 				System.out.println(new Date() + "\t" + result);
 			}
 			
 			//合并并更新索引
 			shellList = FileUtils.readBufferLine(RunxMergeIndexPath, "utf-8");
-			for(String tShell:shellList){				
+			for(String tShell:shellList){
+				System.out.println("tShell:" + tShell);
+				tShell = tShell.replace("{#SphinxPath}", SphinxPath);
 				String result = ShellExecutor.shellExe(tShell, "utf-8");
 				System.out.println(new Date() + "\t" + result);
 			}
@@ -73,7 +80,8 @@ public class SphinxIndex extends Thread{
 	
 	/**
 	 * 得到现在需要 timeLong[0]	表示索引时间最小的时间
-	 * 更新的时间   timeLong[1]  表示索引现在的最大时间
+	 * 更新的时间   timeLong[1]  表示索引现在的时间
+	 * 更新时间断点 timeLong[2]  表示索引现在的最大时间
 	 * @return
 	 */
 	public long[] updateTime(){
@@ -96,6 +104,17 @@ public class SphinxIndex extends Thread{
 		timeLong[1] = new Long(tMap.get("MB_Time").toString());
 		
 		return timeLong;
+	}
+	
+	/**
+	 * 
+	 * @param timeToBeLocked
+	 * 		时间锁,锁定某一段时间,这样索引只会更新此段时间,并不会越界更新其他
+	 */
+	public void LockTime(long timeToBeLocked){
+		SysConstants.mysqlconnect.executeUpdate("DELETE FROM " + SphinxTable +" WHERE MB_ID = 3");
+		String timeLockedSQL = "INSERT INTO " + SphinxTable + " SET MB_ID = 3 , MB_Time =" + timeToBeLocked;
+		SysConstants.mysqlconnect.executeInsert(timeLockedSQL);
 	}
 	
 	public void init(){
@@ -125,32 +144,40 @@ public class SphinxIndex extends Thread{
 		
 		MemcacheUtils.clearAll();	//先把内存全部清空
 		SysConstants.GrobleCache.clear();//同时把一些辅助缓存也清除
-		ic.preLoadData();		//加载一定的数据
-		//首先重建旧索引
-		ArrayList<String> shellList = FileUtils.readBufferLine(RunMainIndexPath, "utf-8");
-		for(String tShell:shellList){				
-			String result = ShellExecutor.shellExe(tShell, "utf-8");
-			System.out.println(new Date() + "\t" + result);
-		}
-//		ShellExecutor.shellExe(RunMainIndexPath, "utf-8");
 		long updateTime[] = updateTime();
 		
 		if(updateTime == null){
 			System.out.println("初始化时间失败!");
 			System.exit(0);
 		}
+		ic.preLoadData(updateTime[0],updateTime[1]);		//加载一定的数据
 		
+		//首先重建旧索引
+		ArrayList<String> shellList = FileUtils.readBufferLine(RunMainIndexPath, "utf-8");
+		for(String tShell:shellList){
+			System.out.println("tShell:" + tShell);
+			tShell = tShell.replace("{#SphinxPath}", SphinxPath);
+			String result = ShellExecutor.shellExe(tShell, "utf-8");
+			System.out.println(new Date() + "\t" + result);
+		}
 		ic.updateSpecial(updateTime[0] , updateTime[1]);
+		long lockedTime = TimeUtils.nowTimeInSec(); 
+		LockTime(lockedTime);		//锁定后,无论更新程序跑多长时间,
+									//更新时间都只会在
 		//再重建增量索引
 		shellList = FileUtils.readBufferLine(RunDeltaIndexPath, "utf-8");
-		for(String tShell:shellList){				
+		for(String tShell:shellList){
+			System.out.println("tShell:" + tShell);
+			tShell = tShell.replace("{#SphinxPath}", SphinxPath);
 			String result = ShellExecutor.shellExe(tShell, "utf-8");
 			System.out.println(new Date() + "\t" + result);
 		}
 		//合并并更新索引
 
 		shellList = FileUtils.readBufferLine(RunxMergeIndexPath, "utf-8");
-		for(String tShell:shellList){				
+		for(String tShell:shellList){
+			System.out.println("tShell:" + tShell);
+			tShell = tShell.replace("{#SphinxPath}", SphinxPath);
 			String result = ShellExecutor.shellExe(tShell, "utf-8");
 			System.out.println(new Date() + "\t" + result);
 		}

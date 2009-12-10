@@ -14,6 +14,7 @@ public class SysConstants {
 	public static String memcacheHost;
 	public static String SphinxHost;
 	public static int SphinxPort;
+	public static String SphinxPath;
 	public static String SphinxTable;
 	public static String RunMainIndexPath;
 	public static String RunDeltaIndexPath;
@@ -40,7 +41,8 @@ public class SysConstants {
 		
 		SphinxHost = cMap.get("SphinxHost").trim();
 		SphinxPort = Integer.parseInt(cMap.get("SphinxPort").trim());
-		SphinxTable	=	cMap.get("SphinxTable").toString();
+		SphinxTable	= cMap.get("SphinxTable").toString();
+		SphinxPath = cMap.get("SphinxPath").toString();
 		
 		RunMainIndexPath = cMap.get("RunMainIndexPath").toString();
 		RunDeltaIndexPath = cMap.get("RunDeltaIndexPath").toString();
