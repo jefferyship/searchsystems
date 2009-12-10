@@ -7,6 +7,12 @@ import com.baicai.bean.ParamBean;
 import com.kernaling.utils.SphinxUtils;
 import com.kernaling.utils.TimeUtils;
 
+/**
+ * 
+ * @author 处理类
+ *		接收到请求后,DefaultRequestProcess会分发相应的任务给DefaultStrategy类去处理
+ *		如:组装参数,如何make搜索结果的xml,和统计统结果
+ */
 public abstract class DefaultStrategy {
 	
 	protected SphinxUtils searchUtils = null;
