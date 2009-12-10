@@ -1,7 +1,11 @@
 # kwok (kernaling.wong@gmail.com)
 #stop serchd and save change to hardisk
-/usr/local/coreseek/bin/searchd --stop
+/web/software/coreseek/bin/searchd --stop
+echo stopped searchd\n
 #start searchd for server of search
-/usr/local/coreseek/bin/searchd --start
+/web/software/coreseek/bin/searchd
+echo started searchd\n
 #merge delta index to main index for updating including deletion for the record
-/usr/local/coreseek/bin/indexer --merge main delta --rotate --merge-filter-range deleted
+echo begin to merge delta index to main indx ....\n
+/web/software/coreseek/bin/indexer --merge main delta --rotate --merge-filter-range deleted 1000000000000,2000000000000
+echo merge operation complete~!\n
