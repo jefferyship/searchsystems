@@ -13,6 +13,12 @@ import com.kernaling.utils.MemcacheUtils;
 import com.kernaling.utils.SphinxUtils;
 import com.kernaling.utils.TimeUtils;
 
+/**
+ * 
+ * @author kwok
+ *		只是处理接受,实现基本的处理流程,至于参数如何去组装,如何成功搜索条件,如何生成一个xml等
+ *		邮件DefaultStrategy类及其子类去实现
+ */
 public class DefaultRequestProcess extends RequestProcess {
 
 	protected SphinxUtils sphinxSearch = SphinxUtils.getInstance(SysConstants.SphinxHost, SysConstants.SphinxPort);
