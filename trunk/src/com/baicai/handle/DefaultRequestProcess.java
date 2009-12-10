@@ -7,7 +7,7 @@ import org.sphx.api.SphinxClient;
 
 import com.baicai.SysConstants;
 import com.baicai.bean.ParamBean;
-import com.baicai.strategy.DefaultStrategy;
+import com.baicai.strategy.BaseStrategy;
 import com.baicai.utils.StringUtils;
 import com.kernaling.utils.MemcacheUtils;
 import com.kernaling.utils.SphinxUtils;
@@ -22,8 +22,8 @@ import com.kernaling.utils.TimeUtils;
 public class DefaultRequestProcess extends RequestProcess {
 
 	protected SphinxUtils sphinxSearch = SphinxUtils.getInstance(SysConstants.SphinxHost, SysConstants.SphinxPort);
-	protected DefaultStrategy ds = null;
-	public DefaultRequestProcess(DefaultStrategy ds){
+	protected BaseStrategy ds = null;
+	public DefaultRequestProcess(BaseStrategy ds){
 		this.ds = ds;
 		
 		if(sphinxSearch != null && ds != null){
