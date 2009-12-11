@@ -18,14 +18,14 @@ public class IndexConfig {
 		nowDay = TimeUtils.TimeInFormate(timeFormat, timeInLong);
 	}
 	
-	public void preLoadData(long startTime , long updateTime){
+	public void preLoadData(long startTime , long lastUpdateTime , long nowTime){
 	}
 	
 	/**
 	 * 用于更新或者删除指定的数据
 	 * 	SphinxUtils.UpdateAttribute(index, attr, docID, value) 方法来实现在合并索引的时候删除索引
 	 */
-	public void updateSpecial(long startTime , long updateTime){
+	public void updateSpecial(long startTime , long lastUpdateTime , long nowTime){
 	}
 	
 	/**

@@ -21,8 +21,8 @@ import com.kernaling.utils.TimeUtils;
  */
 public class DefaultRequestProcess extends RequestProcess {
 
-	protected SphinxUtils sphinxSearch = SphinxUtils.getInstance(SysConstants.SphinxHost, SysConstants.SphinxPort);
-	protected BaseStrategy ds = null;
+	final protected SphinxUtils sphinxSearch = SphinxUtils.getInstance(SysConstants.SphinxHost, SysConstants.SphinxPort);
+	final protected BaseStrategy ds;
 	public DefaultRequestProcess(BaseStrategy ds){
 		this.ds = ds;
 		
@@ -35,8 +35,7 @@ public class DefaultRequestProcess extends RequestProcess {
 	public String execute(Map<String, String> pramMap) {
 		// TODO Auto-generated method stub
 		long startTime = TimeUtils.TimeInMills(0);
-		ParamBean pb = preParm(pramMap);
-		
+		ParamBean pb = ds.preParm(pramMap);
 		if(pb == null){
 			return null;
 		}
@@ -105,9 +104,5 @@ public class DefaultRequestProcess extends RequestProcess {
 		}
 		
 		return returnResult.toString();
-	}
-	
-	protected ParamBean preParm(Map<String, String> pramMap){
-		return null;
 	}
 }

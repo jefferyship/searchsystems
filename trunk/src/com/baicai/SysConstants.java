@@ -19,6 +19,7 @@ public class SysConstants {
 	public static String RunMainIndexPath;
 	public static String RunDeltaIndexPath;
 	public static String RunxMergeIndexPath;
+	public static long IntervalTime;
 	public static int dayBefor;
 	final public static ConcurrentHashMap<String, Object> GrobleCache = new ConcurrentHashMap<String, Object>();
 	
@@ -47,7 +48,8 @@ public class SysConstants {
 		RunMainIndexPath = cMap.get("RunMainIndexPath").toString();
 		RunDeltaIndexPath = cMap.get("RunDeltaIndexPath").toString();
 		RunxMergeIndexPath = cMap.get("RunxMergeIndexPath").toString();
-		
+		//默认是20分钟
+		IntervalTime = new Long((cMap.get("IntervalTime") == null || cMap.get("IntervalTime").toString().trim().equals("")) ? "12000": cMap.get("IntervalTime"));
 		dayBefor = new Integer(cMap.get("dayBefor").toString());
 	}
 }
