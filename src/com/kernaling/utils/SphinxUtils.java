@@ -190,6 +190,23 @@ public class SphinxUtils {
 		return -1;
 	}
 	
+	
+	public int UpdateAttribute(String attr ,long docID , long value){
+		try{			
+			SphinxClient cl = new SphinxClient();
+			cl.SetServer ( host, port );
+			String key[] = new String[]{attr};
+			long values[][] = new long[1][2];
+			values[0][0] = docID;
+			values[0][1] = value;
+			return cl.UpdateAttributes(index, key , values);
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+		return -1;
+	}
+	
+	
 	public static void main(String args[]){
 		String host = "192.168.1.111";
 		int port = 3312;

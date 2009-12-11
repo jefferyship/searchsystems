@@ -73,4 +73,6 @@ public abstract class BaseStrategy {
 		
 		return sb.toString();
 	}
+	
+	public abstract ParamBean preParm(Map<String, String> pramMap);
 }
