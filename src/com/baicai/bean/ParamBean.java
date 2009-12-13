@@ -26,4 +26,8 @@ public abstract class ParamBean {
 	public int staticCount(){
 		return 10;
 	}
+	
+	public String printInfo(){
+		return "nowPage:" + nowPage() +"\tperPage:" + perPage() +"\tquerys():" + querys() +"\tstaticCount:" + staticCount();
+	}
 }
