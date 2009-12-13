@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.baicai.bean.ParamBean;
+import com.kernaling.utils.MemcacheUtils;
 import com.kernaling.utils.SphinxUtils;
 import com.kernaling.utils.TimeUtils;
 
@@ -16,6 +17,27 @@ import com.kernaling.utils.TimeUtils;
 public abstract class BaseStrategy {
 	
 	protected SphinxUtils searchUtils = null;
+	protected Map<String,Object> getDataMap(String keyID){
+		if(keyID == null){
+			return null;
+		}
+		
+		Map<String,Object> tMap = (Map<String,Object>)MemcacheUtils.get(keyID);
+		
+		if(tMap == null){
+			tMap = getFromDB(keyID);
+			
+			if(tMap != null){
+				MemcacheUtils.set(keyID, tMap);
+			}
+		}
+		return tMap;
+	}
+	
+	protected Map<String,Object> getFromDB(String keyID){
+		return null;
+	}
+
 	public void setSphinxSearch(SphinxUtils searchUtils){
 		this.searchUtils = searchUtils;
 	}

@@ -23,7 +23,7 @@ public class SphinxUtils {
 	
 	private String host;
 	private int port;
-	private String index = "*";
+	private String index = "main";
 	private static SphinxUtils instance = null;
 	private SphinxUtils(String host,int port,String index){
 		this.host = host;
@@ -32,7 +32,7 @@ public class SphinxUtils {
 	}
 	
 	public static SphinxUtils getInstance(String host,int port){
-		return getInstance(host,port,"*");
+		return getInstance(host,port,"main");
 	}
 	
 	public static SphinxUtils getInstance(String host,int port,String index){
@@ -57,7 +57,7 @@ public class SphinxUtils {
 		}
 	}
 	
-	public List<Map<String,Object>> search(String index,int  offset,String keywords,int limit,String SortBy,int sortByMode,String groupBy,String groupSort){
+	public List<Map<String,Object>> search(String index,int  limit,String keywords,int offset,String SortBy,int sortByMode,String groupBy,String groupSort){
 		SphinxClient cl = new SphinxClient();
 		try{
 			cl.SetServer ( host, port );
@@ -212,7 +212,7 @@ public class SphinxUtils {
 		int port = 3312;
 		
 		SphinxUtils utils = SphinxUtils.getInstance(host, port);
-		List<Map<String,Object>> l = utils.search("main", 0, "@MB_Content 中国之声", 50 , "@relevance desc" , SphinxClient.SPH_SORT_EXTENDED , "mb_newstime" , "@count desc");
+		List<Map<String,Object>> l = utils.search("main", 50 , "@MB_Content 教育", 0 , "@relevance desc" , SphinxClient.SPH_SORT_EXTENDED , "mb_newstime" , "@count desc");
 //		List<Map<String,Object>> l = utils.search("main", 50, "@MB_Title 武大解聘", 0 );
 
 		utils.ResultInfo(l);
