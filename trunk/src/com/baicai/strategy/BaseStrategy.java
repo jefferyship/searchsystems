@@ -17,6 +17,7 @@ import com.kernaling.utils.TimeUtils;
 public abstract class BaseStrategy {
 	
 	protected SphinxUtils searchUtils = null;
+	
 	protected Map<String,Object> getDataMap(String keyID){
 		if(keyID == null){
 			return null;
@@ -37,7 +38,10 @@ public abstract class BaseStrategy {
 	protected Map<String,Object> getFromDB(String keyID){
 		return null;
 	}
-
+	
+	protected String formatKeyWord(String conent,int between,String color){
+	}
+	
 	public void setSphinxSearch(SphinxUtils searchUtils){
 		this.searchUtils = searchUtils;
 	}
@@ -50,7 +54,7 @@ public abstract class BaseStrategy {
 	 * @return
 	 * 			产生搜索的结果
 	 */
-	public abstract String makeResultXML(List<Map<String,Object>> resultList , long startTime ,ParamBean pb);
+	public abstract String makeResultXML(List<Map<String,Object>> resultList , long startTime ,ParamBean pb,Map<String,Object> infoMap);
 	/**
 	 * 
 	 * @param resultList
@@ -59,7 +63,8 @@ public abstract class BaseStrategy {
 	 * @return
 	 * 			产生基本的统计结果
 	 */
-	public abstract String makeStaticXML(List<Map<String,Object>> resultList , long startTime ,ParamBean pb);
+	public abstract String makeStaticXML(List<Map<String,Object>> resultList , long startTime ,ParamBean pb);	
+	public abstract ParamBean preParm(Map<String, String> pramMap);
 	
 	/**
 	 * 
@@ -86,15 +91,15 @@ public abstract class BaseStrategy {
 		sb.append("<Total>");
 		sb.append(Total);
 		sb.append("</Total>");
-		sb.append("<TimeInUsed>");
+		sb.append("<TimeInSearch>");
 		sb.append(time);
-		sb.append("</TimeInUsed>");
+		sb.append("</TimeInSearch>");
+		sb.append("<Keywords>");
 		sb.append(keyWords);
-		sb.append("</TimeInUsed>");
+		sb.append("</Keywords>");
 		sb.append("</Info>");
 		
 		return sb.toString();
 	}
 	
-	public abstract ParamBean preParm(Map<String, String> pramMap);
 }
