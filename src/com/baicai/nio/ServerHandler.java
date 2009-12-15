@@ -89,7 +89,7 @@ public class ServerHandler extends IoHandlerAdapter {
 						HashMap<String, String> map = getMap(query2);
 //						long start = System.currentTimeMillis();
 						String queryResult = "";
-						if(ps != null){							
+						if(ps != null){
 							queryResult = ps.execute(map);
 						}
 						if (queryResult != null && !queryResult.equals("")) {

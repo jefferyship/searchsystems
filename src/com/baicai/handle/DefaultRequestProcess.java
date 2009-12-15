@@ -71,7 +71,7 @@ public class DefaultRequestProcess extends RequestProcess {
 				infoMap = tList.remove(0);
 				isFirst = false;
 			}
-			cacheResult = ds.makeResultXML(tList, startTime, pb);
+			cacheResult = ds.makeResultXML(tList, startTime, pb , infoMap);
 		}else{
 			System.out.println("参数集:" + pb.printInfo() +"\t命中缓存");
 		}
