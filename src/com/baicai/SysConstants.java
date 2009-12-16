@@ -22,6 +22,7 @@ public class SysConstants {
 	public static long IntervalTime;
 	public static int dayBefor;
 	final public static ConcurrentHashMap<String, Object> GrobleCache = new ConcurrentHashMap<String, Object>();
+	final public static ConcurrentHashMap<String, Object> StaticDataCache = new ConcurrentHashMap<String, Object>();
 	
 	static{
 		String charset = "utf-8";

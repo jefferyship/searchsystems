@@ -59,9 +59,11 @@ public class ServerHandler extends IoHandlerAdapter {
 		}
 		rb.clear();
 		//	md5值 
+		System.out.println("收到参数:" + query);
 		final String md5 =StringUtils.MD5(query);
 		
 		queryResult = (String)MemcacheUtils.get(md5);
+		
 		
 		if (queryResult != null && !queryResult.equals("")) {
 			try {

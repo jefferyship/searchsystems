@@ -126,6 +126,9 @@ public class SphinxIndex extends Thread{
 		SysConstants.mysqlconnect.executeInsert(timeLockedSQL);
 	}
 	
+	/**
+	 * 初始化
+	 */
 	public void init(){
 		//记录了索引的最前时间
 		System.out.println(new Date() + "\t开始初始化....");

@@ -139,7 +139,7 @@ public class SphinxUtils {
 								break;
 
 							default:
-								System.out.print ( "(unknown-attr-type=" + res.attrTypes[a] + ")" );
+//								System.out.print ( "(unknown-attr-type=" + res.attrTypes[a] + ")" );
 //								recordMap.put(res.attrNames[a],date.toString());
 						}
 					}
@@ -208,11 +208,11 @@ public class SphinxUtils {
 	
 	
 	public static void main(String args[]){
-		String host = "192.168.1.111";
-		int port = 3312;
+		String host = "192.168.1.2";
+		int port = 3333;
 		
 		SphinxUtils utils = SphinxUtils.getInstance(host, port);
-		List<Map<String,Object>> l = utils.search("main", 50 , "@MB_Content 教育", 0 , "@relevance desc" , SphinxClient.SPH_SORT_EXTENDED , "mb_newstime" , "@count desc");
+		List<Map<String,Object>> l = utils.search("main", 10 , "教育", 0 , "@relevance desc" , SphinxClient.SPH_SORT_EXTENDED , "ci_typeid" , "@count desc");
 //		List<Map<String,Object>> l = utils.search("main", 50, "@MB_Title 武大解聘", 0 );
 
 		utils.ResultInfo(l);
