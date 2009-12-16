@@ -145,8 +145,8 @@ public class SphinxUtils {
 	}
 	
 	public static void main(String args[]){
-		String host = "192.168.1.5";
-		int port = 3312;
+		String host = "192.168.3.2";
+		int port = 3333;
 		
 		SphinxUtils utils = SphinxUtils.getInstance(host, port);
 	}

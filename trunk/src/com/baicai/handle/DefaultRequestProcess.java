@@ -50,7 +50,7 @@ public class DefaultRequestProcess extends RequestProcess {
 		String sorts = pb.sorts();
 		String resultMD5 = StringUtils.MD5(pb.resultUniKey());
 		String cacheResult = (String)MemcacheUtils.get(resultMD5);
-		
+		cacheResult = null;
 		Map<String,Object> infoMap = null;
 		//以下是搜索结果
 		
@@ -62,12 +62,14 @@ public class DefaultRequestProcess extends RequestProcess {
 			sorts = " @relevance desc";
 		}
 		
+		System.out.println("开始搜索.....");
+		
 		StringBuffer returnResult = new StringBuffer();
-		returnResult.append("<mixue>");
+		returnResult.append("<XML>");
 		boolean isFirst = true;
 		if(cacheResult == null || cacheResult.trim().equals("")){	//如果是缓存中不存在
 			List<Map<String,Object>> tList = sphinxSearch.search("main", perPage , querys ,  nowPage , sorts , SphinxClient.SPH_SORT_EXTENDED );
-			if(isFirst){				
+			if(isFirst){
 				infoMap = tList.remove(0);
 				isFirst = false;
 			}
@@ -92,8 +94,9 @@ public class DefaultRequestProcess extends RequestProcess {
 				for(int i=0;i<staticQuerys.length;i++){
 					String tStaticXML = staticQuerys[i];
 					//List<Map<String,Object>> tList = sphinxSearch.search("main", nowPage , tStaticXML , perPage);
-					List<Map<String,Object>> l = sphinxSearch.search("main", 0, querys , sortCount  , "@relevance desc" , SphinxClient.SPH_SORT_EXTENDED , tStaticXML , "@count desc");
-					staticResult = ds.makeStaticXML(l, startTime, pb);
+					List<Map<String,Object>> l = sphinxSearch.search("main", sortCount , querys , 0  , "@relevance desc" , SphinxClient.SPH_SORT_EXTENDED , tStaticXML , "@count desc");
+					l.remove(0);	//去从第一行
+					staticResult = ds.makeStaticXML(l, startTime, pb , tStaticXML);
 					tmpStaticResult.append(staticResult);
 				}
 				tmpStaticResult.append("</Statics>");
@@ -102,17 +105,16 @@ public class DefaultRequestProcess extends RequestProcess {
 			}
 			if(tmpStaticResult.length() > 0){
 				MemcacheUtils.set(staticMD5, staticResult);		//把统计结果加入
-				returnResult.append(cacheResult);
+				returnResult.append(tmpStaticResult);
 			}
 		}
-		
 		//基本信息,当前页,分页,搜索用时....
 		String info = ds.makeInfoXML(infoMap, startTime, pb);
 		
 		if(info != null && !info.trim().equals("")){
 			returnResult.append(info);
 		}
-		returnResult.append("</mixue>");
+		returnResult.append("</XML>");
 		return returnResult.toString();
 	}
 }
