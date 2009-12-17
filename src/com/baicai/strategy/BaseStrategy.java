@@ -5,7 +5,6 @@ import java.util.Map;
 
 import com.baicai.SysConstants;
 import com.baicai.bean.ParamBean;
-import com.kernaling.utils.MemcacheUtils;
 import com.kernaling.utils.SphinxUtils;
 import com.kernaling.utils.TimeUtils;
 
@@ -141,7 +140,7 @@ public abstract class BaseStrategy {
 			sb.append(tValue);
 			sb.append("=");
 			sb.append(count);
-			sb.append("\n");
+			sb.append("\n\r");
 			
 			System.out.println("统计数据:"+tStaticXML +"\tName:"+tValue+"\tCount:" + count);
 		}
