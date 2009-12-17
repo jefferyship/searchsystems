@@ -11,6 +11,8 @@ import org.sphx.api.SphinxMatch;
 import org.sphx.api.SphinxResult;
 import org.sphx.api.SphinxWordInfo;
 
+import com.baicai.SysConstants;
+
 /**
  * 
  * @author kwok(kernaling.wong@gmail.com)
@@ -97,6 +99,15 @@ public class SphinxUtils {
 //				System.out.print ( (i+1) + ". id=" + info.docId + ", weight=" + info.weight );
 				recordMap.put("KeyID", info.docId);
 				recordMap.put("Weight", info.weight);
+				
+				Map<String, Object> cacheMap = (Map<String, Object>)SysConstants.DBDataCache.get(info.docId+"");
+				
+				if(cacheMap != null){	//如果缓存本来就存在了,则直接返回
+					list.add(recordMap);
+					continue;
+				}
+				
+				
 				if ( res.attrNames==null || res.attrTypes==null ){					
 					continue;
 				}
@@ -144,6 +155,8 @@ public class SphinxUtils {
 						}
 					}
 				}
+				//加入缓存
+				SysConstants.DBDataCache.put(info.docId+"", recordMap);
 				list.add(recordMap);
 			}
 			
