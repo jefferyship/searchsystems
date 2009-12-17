@@ -25,36 +25,47 @@ public class MySQLConnect {
 		
 		Statement st = null;
 		ResultSet rs = null;
-		try{			
-			Connection conn = pool.getConn();
-			st = conn.createStatement();
-			rs = st.executeQuery(sql);			
-			LinkedList<HashMap<String, Object>> reList = new LinkedList<HashMap<String, Object>>();
-			
-			while(rs.next()){
-				ResultSetMetaData  meta = (ResultSetMetaData)rs.getMetaData();
-				int len = meta.getColumnCount();
-				HashMap<String, Object> rowMap = new HashMap<String, Object>();
-				for(int col=0;col<len;col++){
-					String colName = meta.getColumnLabel(col+1);
-					Object rowValue = rs.getObject(col+1);
-					rowMap.put(colName, rowValue);
+		while(true){
+			Connection conn = null;
+			try{
+				conn = pool.getConn();
+				st = conn.createStatement();
+				rs = st.executeQuery(sql);			
+				LinkedList<HashMap<String, Object>> reList = new LinkedList<HashMap<String, Object>>();
+				
+				while(rs.next()){
+					ResultSetMetaData  meta = (ResultSetMetaData)rs.getMetaData();
+					int len = meta.getColumnCount();
+					HashMap<String, Object> rowMap = new HashMap<String, Object>();
+					for(int col=0;col<len;col++){
+						String colName = meta.getColumnLabel(col+1);
+						Object rowValue = rs.getObject(col+1);
+						rowMap.put(colName, rowValue);
+					}
+					if(!rowMap.isEmpty()){
+						reList.add(rowMap);
+					}
 				}
-				if(!rowMap.isEmpty()){
-					reList.add(rowMap);
+				if(pool != null){				
+					pool.add(conn);
+					conn = null;
 				}
+				return reList;
+			}catch(Exception ex){
+				ex.printStackTrace();
+				if(conn != null){
+					try{
+						conn.clearWarnings();
+						conn.close();
+					}catch(Exception e){
+						e.printStackTrace();
+					}
+				}
+				continue;
+			}finally{
+				close(st,rs);
 			}
-			if(pool != null){				
-				pool.add(conn);
-				conn = null;
-			}
-			return reList;
-		}catch(Exception ex){
-			ex.printStackTrace();
-		}finally{
-			close(st,rs);
 		}
-		return null;
 	}
 	
 	/**
@@ -65,22 +76,33 @@ public class MySQLConnect {
 	public long executeUpdate(String sql){
 		Statement st = null;
 		ResultSet rs = null;
-		try{			
-			Connection conn = pool.getConn();
-			st = conn.createStatement();
-			long returnKey = (long)st.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
-			
-			if(pool != null){				
-				pool.add(conn);
-				conn = null;
+		Connection conn = null;
+		while(true){
+			try{
+				conn = pool.getConn();
+				st = conn.createStatement();
+				long returnKey = (long)st.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
+				
+				if(pool != null){				
+					pool.add(conn);
+					conn = null;
+				}
+				return returnKey;
+			}catch(Exception ex){
+				ex.printStackTrace();
+				if(conn != null){
+					try{
+						conn.clearWarnings();
+						conn.close();
+					}catch(Exception e){
+						e.printStackTrace();
+					}
+				}
+				continue;
+			}finally{
+				close(st,rs);
 			}
-			return returnKey;
-		}catch(Exception ex){
-			ex.printStackTrace();
-		}finally{
-			close(st,rs);
 		}
-		return -1L;
 	}
 	
 	/**

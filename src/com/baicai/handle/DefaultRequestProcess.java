@@ -40,17 +40,12 @@ public class DefaultRequestProcess extends RequestProcess {
 			return null;
 		}
 		
-		System.out.println("生成参数:" + pb.printInfo());
-		
 		int nowPage = pb.nowPage();
 		int perPage = pb.perPage();
 		int sortCount = pb.staticCount();
 		String querys = pb.querys();
 		String staticQuerys[] = pb.staticQuery();
 		String sorts = pb.sorts();
-		String resultMD5 = StringUtils.MD5(pb.resultUniKey());
-		String cacheResult = (String)MemcacheUtils.get(resultMD5);
-		cacheResult = null;
 		Map<String,Object> infoMap = null;
 		//以下是搜索结果
 		
@@ -66,37 +61,31 @@ public class DefaultRequestProcess extends RequestProcess {
 		
 		StringBuffer returnResult = new StringBuffer();
 		returnResult.append("<XML>");
-		boolean isFirst = true;
-		if(cacheResult == null || cacheResult.trim().equals("")){	//如果是缓存中不存在
-			List<Map<String,Object>> tList = sphinxSearch.search("main", perPage , querys ,  nowPage , sorts , SphinxClient.SPH_SORT_EXTENDED );
-			if(isFirst){
-				infoMap = tList.remove(0);
-				isFirst = false;
-			}
-			cacheResult = ds.makeResultXML(tList, startTime, pb , infoMap);
-		}else{
-			System.out.println("参数集:" + pb.printInfo() +"\t命中缓存");
+		//如果是缓存中不存在
+		List<Map<String,Object>> tList = sphinxSearch.search("main", perPage , querys ,  nowPage , sorts , SphinxClient.SPH_SORT_EXTENDED );
+		if(tList.size() > 1){
+			infoMap = tList.remove(0);			
 		}
-		
-		if(cacheResult != null && !cacheResult.trim().equals("")){
-			MemcacheUtils.set(resultMD5, cacheResult);
-			returnResult.append(cacheResult);			//把搜索结果加入
-		}
+
+		String result = ds.makeResultXML(tList, startTime, pb , infoMap);	
+		returnResult.append(result);			//把搜索结果加入
 		
 		String staticMD5 = StringUtils.MD5(pb.staticUniKey());
 
 		//统计结果
 		if(staticQuerys != null){
-			String staticResult = (String)MemcacheUtils.get(staticMD5);
+			String staticResult = (String)SysConstants.StaticDataCache.get(staticMD5);
 			StringBuffer tmpStaticResult = new StringBuffer();
 			if(staticResult == null || staticResult.trim().equals("")){	//如果是缓存中不存在
 				tmpStaticResult.append("<Statics>");
 				for(int i=0;i<staticQuerys.length;i++){
 					String tStaticXML = staticQuerys[i];
-					//List<Map<String,Object>> tList = sphinxSearch.search("main", nowPage , tStaticXML , perPage);
 					List<Map<String,Object>> l = sphinxSearch.search("main", sortCount , querys , 0  , "@relevance desc" , SphinxClient.SPH_SORT_EXTENDED , tStaticXML , "@count desc");
+					if(l.size()>1){
+						l.remove(0);
+					}
 					l.remove(0);	//去从第一行
-					staticResult = ds.makeStaticXML(l, startTime, pb , tStaticXML);
+					staticResult = ds.makeStaticXML(l, startTime, pb , tStaticXML , tStaticXML);
 					tmpStaticResult.append(staticResult);
 				}
 				tmpStaticResult.append("</Statics>");
@@ -104,7 +93,7 @@ public class DefaultRequestProcess extends RequestProcess {
 				tmpStaticResult.append(staticResult);
 			}
 			if(tmpStaticResult.length() > 0){
-				MemcacheUtils.set(staticMD5, staticResult);		//把统计结果加入
+				SysConstants.StaticDataCache.put(staticMD5, tmpStaticResult);
 				returnResult.append(tmpStaticResult);
 			}
 		}

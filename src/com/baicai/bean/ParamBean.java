@@ -1,10 +1,8 @@
 package com.baicai.bean;
 
 public abstract class ParamBean {
-	
-	public abstract String resultUniKey();
+	//子类一定要实现这一个统计类的唯一条件
 	public abstract String staticUniKey();
-	
 	public int nowPage(){
 		return 1;
 	}
