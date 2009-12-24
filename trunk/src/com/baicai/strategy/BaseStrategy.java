@@ -1,7 +1,10 @@
 package com.baicai.strategy;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.baicai.SysConstants;
 import com.baicai.bean.ParamBean;
@@ -65,42 +68,73 @@ public abstract class BaseStrategy {
 		if(content == null){
 			return null;
 		}
+		
+		
 		for(int i=0;i<keywords.length;i++)
 		{
 			content = content.replace(keywords[i], prefix + keywords[i] + posfix);
 		}
+		int exLen_1 = prefix.length();
+		int exLen_2 = posfix.length();
 		
 		int maxLen = content.length();
 		int min = maxLen;
 		int max = 0;
-		
 		for(int i=0;i<keywords.length;i++)
 		{
 			int t = content.indexOf(keywords[i]);
 			int n = content.lastIndexOf(keywords[i]);
 			int tmpLen = keywords[i].length();
 			
-			if(t-between < min){
-				min = t-between;
+			if(t-between-exLen_1 < min){
+				min = t-between-exLen_1;
 				min=min<0?0:min;
 			}
 			
-			if(n+between+tmpLen>max){
-				max = n+between+tmpLen;
+			if(n+between+tmpLen+exLen_2>max){
+				max = n+between+tmpLen+exLen_2;
 				max=max>maxLen?maxLen:max;
 			}
-			
 		}
 		
-		content = content.substring(min , max);
+		Pattern pattern = Pattern.compile(("(" + prefix+".+?"+posfix+")"), Pattern.DOTALL);
+		ArrayList<String> keyArray = new ArrayList<String>();
+		
+		
+		content = content.substring(min, max);
+		
+		
+		Matcher m = pattern.matcher(content);
+		while(m.find()){
+			keyArray.add(m.group(1).trim());
+		}
+		
+		String s[] = content.split(prefix+".*?"+posfix);
+		StringBuffer result = new StringBuffer();
 		if(min > 0){
-			content = "..." + content;
+			result.append(" ... ");
 		}
-		
-		if(content.length() > 200 ){			
-			content = content.substring(0, 200) +"...";
+		for(int t=0;t<s.length;t++){
+			String tm = s[t];
+			
+			if(tm.length() > 30){	//如果每一段长度大于30则应该需要省略显示
+				result.append(tm.substring(0, 15) +"..."+ tm.substring(tm.length()-15, tm.length()));
+			}else{
+				result.append(tm);
+			}
+			
+			if(t > 10){
+				break;
+			}
+			
+			if(t<s.length-1){				
+				result.append(keyArray.get(t));
+			}
 		}
-		return content;
+		if(maxLen>max){
+			result.append(" ... ");			
+		}
+		return result.toString();
 	}
 	
 	public void setSphinxSearch(SphinxUtils searchUtils){
