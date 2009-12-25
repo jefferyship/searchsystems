@@ -93,6 +93,7 @@ public class ServerHandler extends IoHandlerAdapter {
 						String queryResult = "";
 						if(ps != null){
 							queryResult = ps.execute(map);
+							System.out.println("返回:" + queryResult);
 						}
 						if (queryResult != null && !queryResult.equals("")) {
 
