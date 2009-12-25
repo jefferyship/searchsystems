@@ -104,6 +104,7 @@ public class DefaultRequestProcess extends RequestProcess {
 			returnResult.append(info);
 		}
 		returnResult.append("</XML>");
+				
 		return returnResult.toString();
 	}
 }
