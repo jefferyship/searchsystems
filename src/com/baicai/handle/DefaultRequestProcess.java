@@ -63,7 +63,7 @@ public class DefaultRequestProcess extends RequestProcess {
 		returnResult.append("<XML>");
 		//如果是缓存中不存在
 		List<Map<String,Object>> tList = sphinxSearch.search("main", perPage , querys ,  nowPage , sorts , SphinxClient.SPH_SORT_EXTENDED );
-		if(tList.size() > 1){
+		if(tList.size() > 0){
 			infoMap = tList.remove(0);			
 		}
 
