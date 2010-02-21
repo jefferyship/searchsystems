@@ -1,24 +1,30 @@
 #连接数据库的连接
+<<<<<<< .mine
+Host	=	192.168.1.111
+DB		=	mixue
+=======
 Host	=	192.168.1.111
 DB		=	mixue_db
+>>>>>>> .r17
 Usr		=	kernaling.wong
 Passwd	=	ilovehua
 Port	=	3306
 MaxConn	=	5
 
 #Mina连接参数
-SERVER_PORT	=	1985
+SERVER_PORT	=	2011
 
 #MemcachedHost,多个以 "," 隔开
 MemcachedHost	=	192.168.1.111:3335
 
 #SphinxSearch的主机与端口
-SphinxPath	=	/usr/loca/sphinx/
+SphinxPath	=	/usr/local/newsSearch
 SphinxHost	=	192.168.1.111
-SphinxPort	=	3331
-SphinxTable	=	MB_Mark_Table
+SphinxPort	=	3312
+SphinxTable	=	mx_coreseek_config
 RunMainIndexPath	=	./config/RunMainIndex.sh
 RunDeltaIndexPath	=	./config/RunDeltaIndex.sh
 RunxMergeIndexPath	=	./config/RunMergeIndex.sh
-
+# type for search 1:news 2:school 3:traning 4:books 5:blok
+Type		=	1
 dayBefor	=	30
