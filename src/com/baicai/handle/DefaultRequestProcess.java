@@ -46,6 +46,12 @@ public class DefaultRequestProcess extends RequestProcess {
 		String querys = pb.querys();
 		String staticQuerys[] = pb.staticQuery();
 		String sorts = pb.sorts();
+		
+		if(nowPage < 1 || perPage < 1){
+			perPage = 10;
+			nowPage = 0;
+		}
+		
 		Map<String,Object> infoMap = null;
 		//以下是搜索结果
 		
@@ -62,7 +68,7 @@ public class DefaultRequestProcess extends RequestProcess {
 		StringBuffer returnResult = new StringBuffer();
 		returnResult.append("<XML>");
 		//如果是缓存中不存在
-		List<Map<String,Object>> tList = sphinxSearch.search("main", perPage , querys ,  nowPage , sorts , SphinxClient.SPH_SORT_EXTENDED );
+		List<Map<String,Object>> tList = sphinxSearch.search("main", perPage , querys ,  (nowPage-1)*perPage , sorts , SphinxClient.SPH_SORT_EXTENDED );
 		if(tList.size() > 0){
 			infoMap = tList.remove(0);			
 		}
