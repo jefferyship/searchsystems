@@ -29,6 +29,7 @@ public class SphinxIndex extends Thread{
 	protected String SphinxTable = SysConstants.SphinxTable;
 	protected int dayBefor = SysConstants.dayBefor;
 	protected String SphinxPath = SysConstants.SphinxPath;
+	
 	final protected IndexConfig ic;
 	public SphinxIndex(IndexConfig ic){
 		this.ic = ic;
@@ -49,6 +50,7 @@ public class SphinxIndex extends Thread{
 			}
 			// updateTime[0] 索引的最早时间
 			// updateTime[1] 
+			// updateTime[2] 表示更新时间为当前时间
 			LockTime(updateTime[2]);			
 			ic.updateSpecial(updateTime[0] , updateTime[1] , updateTime[2] );
 			//再重建增量索引
@@ -88,29 +90,28 @@ public class SphinxIndex extends Thread{
 	public long[] updateTime(){
 		long[] timeLong = new long[3];
 		
-		List tList = SysConstants.mysqlconnect.executeQuery("SELECT MB_Time FROM " + SphinxTable +" WHERE MB_ID = 1");
+		int tKeyID = (SysConstants.Type-1)*3 + 1;
+		List tList = SysConstants.mysqlconnect.executeQuery("SELECT CC_Time FROM " + SphinxTable +" WHERE CC_ID = " + tKeyID);
 		
 		if(tList == null || tList.isEmpty()){
 			return null;
 		}
 		Map tMap = (Map)tList.get(0);
-		timeLong[0] = new Long(tMap.get("MB_Time").toString());
+		timeLong[0] = new Long(tMap.get("CC_Time").toString());
 		
-		tList = SysConstants.mysqlconnect.executeQuery("SELECT MB_Time FROM " + SphinxTable +" WHERE MB_ID = 2");
-		
-		if(tList == null || tList.isEmpty()){;
-			return null;
-		}
-		tMap = (Map)tList.get(0);
-		timeLong[1] = new Long(tMap.get("MB_Time").toString());
-		
-		tList = SysConstants.mysqlconnect.executeQuery("SELECT MB_Time FROM " + SphinxTable +" WHERE MB_ID = 3");
+		tList = SysConstants.mysqlconnect.executeQuery("SELECT CC_Time FROM " + SphinxTable +" WHERE CC_ID = " + (tKeyID+1));
 		
 		if(tList == null || tList.isEmpty()){;
 			return null;
 		}
 		tMap = (Map)tList.get(0);
-		timeLong[2] = new Long(tMap.get("MB_Time").toString()); 
+		timeLong[1] = new Long(tMap.get("CC_Time").toString());
+		
+		//以下需要是当前时间了
+		long nowTime = TimeUtils.nowTimeInSec();
+		String updateSQL = "UPDATE "+SphinxTable+" SET CC_Time = " + nowTime +" WHERE CC_ID = " + (tKeyID+2);
+		SysConstants.mysqlconnect.executeUpdate(updateSQL);
+		timeLong[2] = nowTime; 
 		
 		return timeLong;
 	}
@@ -121,8 +122,9 @@ public class SphinxIndex extends Thread{
 	 * 		时间锁,锁定某一段时间,这样索引只会更新此段时间,并不会越界更新其他
 	 */
 	public void LockTime(long timeToBeLocked){
-		SysConstants.mysqlconnect.executeUpdate("DELETE FROM " + SphinxTable +" WHERE MB_ID = 3");
-		String timeLockedSQL = "INSERT INTO " + SphinxTable + " SET MB_ID = 3 , MB_Time =" + timeToBeLocked;
+		int tKeyID = (SysConstants.Type-1)*3 + 1;
+		SysConstants.mysqlconnect.executeUpdate("DELETE FROM " + SphinxTable +" WHERE CC_ID = " + (tKeyID + 2));
+		String timeLockedSQL = "INSERT INTO " + SphinxTable + " SET CC_ID = "+(tKeyID + 2)+" , CC_Time =" + timeToBeLocked;
 		SysConstants.mysqlconnect.executeInsert(timeLockedSQL);
 	}
 	
@@ -132,36 +134,39 @@ public class SphinxIndex extends Thread{
 	public void init(){
 		//记录了索引的最前时间
 		System.out.println(new Date() + "\t开始初始化....");
+		int tKeyID = (SysConstants.Type-1)*3 + 1;
 		if(ic.canResetIndex()){
-			String delete = "DELETE FROM " + SphinxTable ;
-			SysConstants.mysqlconnect.executeUpdate(delete);
+			for(int i=0;i<3;i++){				
+				String delete = "DELETE FROM " + SphinxTable + " WHERE CC_ID = " + (SysConstants.Type + i);
+				SysConstants.mysqlconnect.executeUpdate(delete);
+			}
 		}
 		
-		List tList = SysConstants.mysqlconnect.executeQuery("SELECT * FROM " + SphinxTable +" WHERE MB_ID = 1 ");
+		List tList = SysConstants.mysqlconnect.executeQuery("SELECT * FROM " + SphinxTable +" WHERE CC_ID = " + tKeyID);
 		
 		//最原始的时候
 		if(tList.isEmpty()){
 			long lastTime = (TimeUtils.TimeInMills(-dayBefor)/1000);
-			String sql = "INSERT INTO " + SphinxTable + " SET MB_ID = 1 ,MB_Time =" + lastTime;
+			String sql = "INSERT INTO " + SphinxTable + " SET CC_ID = "+tKeyID+" ,CC_Time =" + lastTime;
 			SysConstants.mysqlconnect.executeInsert(sql);
 		}
 		
 		//记录上一次索引现在的时间
-		tList = SysConstants.mysqlconnect.executeQuery("SELECT * FROM " + SphinxTable +" WHERE MB_ID = 2 ");
+		tList = SysConstants.mysqlconnect.executeQuery("SELECT * FROM " + SphinxTable +" WHERE CC_ID = " +(tKeyID+1));
 		long lastTime = TimeUtils.nowTimeInSec();
 		if(tList.isEmpty()){
-			String sql = "INSERT INTO " + SphinxTable + " SET MB_ID = 2 ,MB_Time =" + lastTime;
+			String sql = "INSERT INTO " + SphinxTable + " SET CC_ID = "+(tKeyID+1)+" ,CC_Time =" + lastTime;
 			SysConstants.mysqlconnect.executeInsert(sql);
 		}
 		
 		//记录索引现在的时间
-		tList = SysConstants.mysqlconnect.executeQuery("SELECT * FROM " + SphinxTable +" WHERE MB_ID = 3 ");
+		tList = SysConstants.mysqlconnect.executeQuery("SELECT * FROM " + SphinxTable +" WHERE CC_ID = " + (tKeyID+2));
 		if(tList.isEmpty()){
-			String sql = "INSERT INTO " + SphinxTable + " SET MB_ID = 3 ,MB_Time =" + lastTime;
+			String sql = "INSERT INTO " + SphinxTable + " SET CC_ID = "+(tKeyID+2)+" ,CC_Time =" + lastTime;
 			SysConstants.mysqlconnect.executeInsert(sql);
 		}
 		
-		MemcacheUtils.clearAll();	//先把内存全部清空
+//		MemcacheUtils.clearAll();	//先把内存全部清空
 		SysConstants.GrobleCache.clear();//同时把一些辅助缓存也清除
 		
 		long updateTime[] = updateTime();
@@ -176,8 +181,8 @@ public class SphinxIndex extends Thread{
 		//首先重建旧索引
 		ArrayList<String> shellList = FileUtils.readBufferLine(RunMainIndexPath, "utf-8");
 		for(String tShell:shellList){
-			System.out.println("tShell:" + tShell);
 			tShell = tShell.replace("{#SphinxPath}", SphinxPath);
+			System.out.println("tShell:" + tShell);
 			String result = ShellExecutor.shellExe(tShell, "utf-8");
 			System.out.println(new Date() + "\t" + result);
 		}

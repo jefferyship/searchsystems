@@ -21,9 +21,9 @@ public class SysConstants {
 	public static String RunxMergeIndexPath;
 	public static long IntervalTime;
 	public static int dayBefor;
+	public static int Type = 0;
 	final public static ConcurrentHashMap<String, Object> GrobleCache = new ConcurrentHashMap<String, Object>();
 	final public static ConcurrentHashMap<String, Object> StaticDataCache = new ConcurrentHashMap<String, Object>();
-	//
 	final public static ConcurrentHashMap<String, Object> DBDataCache = new ConcurrentHashMap<String, Object>();
 	
 	static{
@@ -54,5 +54,8 @@ public class SysConstants {
 		//默认是20分钟
 		IntervalTime = new Long((cMap.get("IntervalTime") == null || cMap.get("IntervalTime").toString().trim().equals("")) ? "12000": cMap.get("IntervalTime"));
 		dayBefor = new Integer(cMap.get("dayBefor").toString());
+		
+		//选择现在的类型
+		Type = new Integer(cMap.get("Type").toString());
 	}
 }

@@ -118,7 +118,7 @@ public abstract class BaseStrategy {
 			String tm = s[t];
 			
 			if(tm.length() > 30){	//如果每一段长度大于30则应该需要省略显示
-				result.append(tm.substring(0, 15) +"..."+ tm.substring(tm.length()-15, tm.length()));
+				result.append(tm.substring(0, 15) +" ... "+ tm.substring(tm.length()-15, tm.length()));
 			}else{
 				result.append(tm);
 			}
@@ -197,7 +197,7 @@ public abstract class BaseStrategy {
 		long TotalFound = (Integer)infoMap.get("TotalFound");
 		int PerPage = pb.perPage();
 		int nowPage = pb.nowPage();
-		long PageInTotal = (TotalFound%PerPage==0 ? TotalFound%PerPage : TotalFound/PerPage + 1);
+		long PageInTotal = (TotalFound%PerPage==0 ? TotalFound/PerPage : TotalFound/PerPage + 1);
 		float time = (Float)infoMap.get("TimeInUsed");
 		String keyWords = (String)infoMap.get("KeyWords");
 		
