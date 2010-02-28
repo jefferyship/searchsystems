@@ -156,7 +156,6 @@ public class SphinxUtils {
 					}
 				}
 				//加入缓存
-				SysConstants.DBDataCache.put(info.docId+"", recordMap);
 				list.add(recordMap);
 			}
 			

@@ -69,6 +69,12 @@ public class DefaultRequestProcess extends RequestProcess {
 		returnResult.append("<XML>");
 		//如果是缓存中不存在
 		List<Map<String,Object>> tList = sphinxSearch.search("main", perPage , querys ,  (nowPage-1)*perPage , sorts , SphinxClient.SPH_SORT_EXTENDED );
+		
+		if(tList == null){
+			System.out.println("搜索地址:"+SysConstants.SphinxHost+"\t端口:" + SysConstants.SphinxPort +"\t返回了空结果");
+			return "";
+		}
+		
 		if(tList.size() > 0){
 			infoMap = tList.remove(0);			
 		}
@@ -80,18 +86,21 @@ public class DefaultRequestProcess extends RequestProcess {
 
 		//统计结果
 		if(staticQuerys != null){
-			String staticResult = (String)SysConstants.StaticDataCache.get(staticMD5);
+			String staticResult = null;
+			if(staticMD5 != null && !staticMD5.equals("")){
+				staticResult = (String)SysConstants.StaticDataCache.get(staticMD5);				
+			}
+			
 			StringBuffer tmpStaticResult = new StringBuffer();
 			if(staticResult == null || staticResult.trim().equals("")){	//如果是缓存中不存在
 				tmpStaticResult.append("<Statics>");
 				for(int i=0;i<staticQuerys.length;i++){
-					String tStaticXML = staticQuerys[i];
-					List<Map<String,Object>> l = sphinxSearch.search("main", sortCount , querys , 0  , "@relevance desc" , SphinxClient.SPH_SORT_EXTENDED , tStaticXML , "@count desc");
+					String staticField = staticQuerys[i];
+					List<Map<String,Object>> l = sphinxSearch.search("main", sortCount , querys , 0  , "@relevance desc" , SphinxClient.SPH_SORT_EXTENDED , staticField , "@count desc");
 					if(l.size()>1){
 						l.remove(0);
 					}
-					l.remove(0);	//去从第一行
-					staticResult = ds.makeStaticXML(l, startTime, pb , tStaticXML , tStaticXML);
+					staticResult = ds.makeStaticXML(l, startTime, pb , staticField);
 					tmpStaticResult.append(staticResult);
 				}
 				tmpStaticResult.append("</Statics>");
@@ -99,7 +108,9 @@ public class DefaultRequestProcess extends RequestProcess {
 				tmpStaticResult.append(staticResult);
 			}
 			if(tmpStaticResult.length() > 0){
-				SysConstants.StaticDataCache.put(staticMD5, tmpStaticResult);
+				if(staticMD5 != null && !staticMD5.equals("")){					
+					SysConstants.StaticDataCache.put(staticMD5, tmpStaticResult.toString());
+				}
 				returnResult.append(tmpStaticResult);
 			}
 		}
