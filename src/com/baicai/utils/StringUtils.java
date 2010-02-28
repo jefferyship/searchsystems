@@ -10,7 +10,10 @@ import java.security.MessageDigest;
  */
 public class StringUtils {
 	public static String MD5(String textBytes){
-		try{			
+		if(textBytes == null || textBytes.trim().equals("")){
+			return null;
+		}
+		try{
 			MessageDigest ms = MessageDigest.getInstance("MD5");
 			ms.update(textBytes.getBytes());
 			return new String(ms.digest());

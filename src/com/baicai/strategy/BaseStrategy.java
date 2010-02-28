@@ -68,8 +68,7 @@ public abstract class BaseStrategy {
 		if(content == null){
 			return null;
 		}
-		
-		
+
 		for(int i=0;i<keywords.length;i++)
 		{
 			content = content.replace(keywords[i], prefix + keywords[i] + posfix);
@@ -158,29 +157,22 @@ public abstract class BaseStrategy {
 	 * @return
 	 * 			产生基本的统计结果
 	 */
-	public String makeStaticXML(List<Map<String,Object>> resultList , long startTime ,ParamBean pb,String tStaticQuery,String tStaticXML){
+	public String makeStaticXML(List<Map<String,Object>> resultList , long startTime ,ParamBean pb,String staticKey){
 		// TODO Auto-generated method stub
 		StringBuffer sb = new StringBuffer();
-		sb.append("<"+tStaticXML+">");
+		sb.append("<"+staticKey+">");
 		for(Map<String, Object> tMap:resultList){
-			String staticKey = tMap.get(tStaticXML).toString();
-			
-			if(staticKey == null){
-				System.out.println("tStaticXML:" + tStaticXML +"\t并没有找到...");
-				continue;
-			}
-			String tValue = getStaticDataMap(staticKey);
+			String staticName = tMap.get(staticKey.toLowerCase()).toString();
 			Long count = (Long)tMap.get("@count");
-			sb.append(tValue);
+			sb.append(staticName);
 			sb.append("=");
 			sb.append(count);
-			sb.append("\n\r");
-			
-			System.out.println("统计数据:"+tStaticXML +"\tName:"+tValue+"\tCount:" + count);
+			sb.append(";");
 		}
-		sb.append("</"+tStaticXML+">");
+		sb.append("</"+staticKey+">");
 		return sb.toString();
 	}
+	
 	public abstract ParamBean preParm(Map<String, String> pramMap);
 	
 	/**
