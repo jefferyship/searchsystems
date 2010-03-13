@@ -1,8 +1,9 @@
 package com.kernaling.mysql;
 
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.sql.Date;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -21,7 +22,7 @@ public class MySQLConnect {
 	 * @param sql
 	 * @return			数据库的查询操作
 	 */
-	public LinkedList<HashMap<String, Object>> executeQuery(String sql){
+	public ArrayList<HashMap<String, Object>> executeQuery(String sql){
 		
 		Statement st = null;
 		ResultSet rs = null;
@@ -31,7 +32,7 @@ public class MySQLConnect {
 				conn = pool.getConn();
 				st = conn.createStatement();
 				rs = st.executeQuery(sql);			
-				LinkedList<HashMap<String, Object>> reList = new LinkedList<HashMap<String, Object>>();
+				ArrayList<HashMap<String, Object>> reList = new ArrayList<HashMap<String, Object>>();
 				
 				while(rs.next()){
 					ResultSetMetaData  meta = (ResultSetMetaData)rs.getMetaData();
