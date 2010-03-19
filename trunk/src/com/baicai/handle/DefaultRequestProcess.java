@@ -34,11 +34,12 @@ public class DefaultRequestProcess extends RequestProcess {
 	@Override
 	public String execute(Map<String, String> pramMap) {
 		// TODO Auto-generated method stub
-		long startTime = TimeUtils.TimeInMills(0);
+		
 		ParamBean pb = ds.preParm(pramMap);
 		if(pb == null){
 			return null;
 		}
+		long startTime = TimeUtils.TimeInMills(0);
 		
 		int nowPage = pb.nowPage();
 		int perPage = pb.perPage();

@@ -3,6 +3,7 @@ package com.baicai.nio;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -11,11 +12,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.transport.socket.SocketSessionConfig;
 
-import com.baicai.SysConstants;
 import com.baicai.handle.RequestProcess;
-import com.kernaling.utils.MemcacheUtils;
 import com.kernaling.utils.StringUtils;
 
 /**
@@ -59,12 +57,12 @@ public class ServerHandler extends IoHandlerAdapter {
 		}
 		rb.clear();
 		//	md5值 
-		System.out.println("收到参数:" + query);
-		final String md5 =StringUtils.MD5(query);
+		System.out.println(new Date() + "\t收到参数:" + query);
+//		final String md5 =StringUtils.MD5(query);
 		
-		queryResult = (String)MemcacheUtils.get(md5);
-		
-		
+//		queryResult = (String)MemcacheUtils.get(md5);
+		queryResult = null;
+		System.out.println("-===========");
 		if (queryResult != null && !queryResult.equals("")) {
 			try {
 
@@ -83,15 +81,20 @@ public class ServerHandler extends IoHandlerAdapter {
 		} else {
 			final String query2 = query;
 			final IoSession session2 = session;
+			
+			System.out.println("开始使用... 1");
+			
 			Runnable run = new Runnable() {
 				public void run() {
 					try {
 						// TODO Auto-generated method stub
 						// 处理搜索请求
+						System.out.println("开始使用... 2");
 						HashMap<String, String> map = getMap(query2);
 //						long start = System.currentTimeMillis();
 						String queryResult = "";
 						if(ps != null){
+							System.out.println("=====");
 							queryResult = ps.execute(map);
 							System.out.println("返回:" + queryResult);
 						}
@@ -100,7 +103,7 @@ public class ServerHandler extends IoHandlerAdapter {
 							byte[] encode = queryResult.getBytes("utf-8");
 							IoBuffer resultBuffer = IoBuffer.wrap(encode);
 							session2.write(resultBuffer);
-							MemcacheUtils.set(md5, resultBuffer);
+//							MemcacheUtils.set(md5, resultBuffer);
 						}
 					} catch (UnsupportedEncodingException e) {
 						// TODO Auto-generated catch block
