@@ -1,16 +1,21 @@
 package com.kernaling.mysql;
 
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 
 import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.PreparedStatement;
 import com.mysql.jdbc.ResultSetMetaData;
 
+/**
+ * 
+ * @author kernaling.wong@gmail.com
+ * 				2010-03-21	修改了连接池,在连接失败后会重试三次
+ *
+ */
 public class MySQLConnect {
 	private MySQLPool pool = null;
 	public MySQLConnect(MySQLPool pool){
@@ -26,10 +31,10 @@ public class MySQLConnect {
 		
 		Statement st = null;
 		ResultSet rs = null;
-		while(true){
-			Connection conn = null;
+		int time = 0;
+		while(time++<3){		//重试三次
 			try{
-				conn = pool.getConn();
+				Connection conn = pool.getConn();
 				st = conn.createStatement();
 				rs = st.executeQuery(sql);			
 				ArrayList<HashMap<String, Object>> reList = new ArrayList<HashMap<String, Object>>();
@@ -52,21 +57,16 @@ public class MySQLConnect {
 					conn = null;
 				}
 				return reList;
+			
 			}catch(Exception ex){
-				ex.printStackTrace();
-				if(conn != null){
-					try{
-						conn.clearWarnings();
-						conn.close();
-					}catch(Exception e){
-						e.printStackTrace();
-					}
-				}
-				continue;
+//				ex.printStackTrace();
+				System.out.println( new Date() + "\t重试:" + time +"\t原因:" + ex.getMessage());
 			}finally{
 				close(st,rs);
 			}
 		}
+		
+		return null;
 	}
 	
 	/**
@@ -77,10 +77,10 @@ public class MySQLConnect {
 	public long executeUpdate(String sql){
 		Statement st = null;
 		ResultSet rs = null;
-		Connection conn = null;
-		while(true){
+		int times = 0;
+		while(times++<3){
 			try{
-				conn = pool.getConn();
+				Connection conn = pool.getConn();
 				st = conn.createStatement();
 				long returnKey = (long)st.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
 				
@@ -89,21 +89,16 @@ public class MySQLConnect {
 					conn = null;
 				}
 				return returnKey;
+			
+				
 			}catch(Exception ex){
 				ex.printStackTrace();
-				if(conn != null){
-					try{
-						conn.clearWarnings();
-						conn.close();
-					}catch(Exception e){
-						e.printStackTrace();
-					}
-				}
-				continue;
 			}finally{
 				close(st,rs);
 			}
 		}
+		
+		return -1L;
 	}
 	
 	/**
@@ -125,43 +120,49 @@ public class MySQLConnect {
 	public boolean executePrepareSQL(String sql,Object[] values){
 		PreparedStatement st = null;
 		ResultSet rs = null;
-		try{			
-			Connection conn = pool.getConn();
-			st = (PreparedStatement)conn.prepareStatement(sql);
-			
-			int params = values.length;
-			for(int i=0;i<params;i++){
-				Object tObj = values[i];
-				if(tObj == null){
-					continue;
+		int times = 0;
+		
+		while(times++<3){
+			try{			
+				Connection conn = pool.getConn();
+				st = (PreparedStatement)conn.prepareStatement(sql);
+				
+				int params = values.length;
+				for(int i=0;i<params;i++){
+					Object tObj = values[i];
+					if(tObj == null){
+						continue;
+					}
+					
+					if(tObj instanceof String){
+						st.setString(i, (String)tObj);
+					}else
+						if(tObj instanceof Integer){
+							st.setInt(i, (Integer)tObj);
+						}else
+							if(tObj instanceof Long){
+								st.setLong(i, (Long)tObj);
+							}else
+								if(tObj instanceof java.sql.Date){
+									st.setDate(i, (java.sql.Date)tObj);
+								}else{
+									st.setObject(i , tObj);
+								}
 				}
 				
-				if(tObj instanceof String){
-					st.setString(i, (String)tObj);
-				}else
-					if(tObj instanceof Integer){
-						st.setInt(i, (Integer)tObj);
-					}else
-						if(tObj instanceof Long){
-							st.setLong(i, (Long)tObj);
-						}else
-							if(tObj instanceof Date){
-								st.setDate(i, (Date)tObj);
-							}else{
-								st.setObject(i , tObj);
-							}
+				if(pool != null){
+					pool.add(conn);
+					conn = null;
+				}
+				return true;
+			}catch(Exception ex){
+				ex.printStackTrace();
+			}finally{
+				close(st,rs);
 			}
-			
-			if(pool != null){
-				pool.add(conn);
-				conn = null;
-			}
-			return true;
-		}catch(Exception ex){
-			ex.printStackTrace();
-		}finally{
-			close(st,rs);
 		}
+		
+		
 		return false;
 	}
 	
