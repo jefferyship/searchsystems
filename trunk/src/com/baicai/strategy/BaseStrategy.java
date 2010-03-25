@@ -22,6 +22,19 @@ public abstract class BaseStrategy {
 	
 	protected SphinxUtils searchUtils = null;
 	
+	private class Pair{
+
+		public String msg = "";
+		public String keyWord = "";
+		public Pair(String keyWord ,String msg){
+			this.keyWord = keyWord;
+			this.msg = msg;
+		}
+		public int getLength(){
+			return keyWord.length();
+		}
+	}
+	
 	protected Map<String,Object> getDataMap(String keyID){
 		if(keyID == null){
 			return null;
@@ -135,6 +148,75 @@ public abstract class BaseStrategy {
 		}
 		return result.toString();
 	}
+	
+	
+	protected String formatKeyWord(String content,String[] keywords,int between,int maxTextLen , String prefix,String posfix){
+		if(content == null){
+			return null;
+		}
+
+		for(int i=0;i<keywords.length;i++)
+		{
+			content = content.replace(keywords[i], prefix + keywords[i] + posfix);
+		}
+
+		
+		Matcher matcher = Pattern.compile(("(" + prefix+".+?"+posfix+")"), Pattern.DOTALL).matcher(content);
+
+		ArrayList<String> al = new ArrayList<String>();
+		int lastIndex = 0;
+		boolean isFirst = true;
+		while(matcher.find()){
+			String tKeyword = matcher.group(1).trim();
+			int beforIndex = content.indexOf(tKeyword);
+			int afterIndex = beforIndex+tKeyword.length();
+			
+			String tMsg = content.substring(lastIndex, beforIndex);
+			
+			int tLen = tMsg.length();
+			if(tLen > between){				
+				String tPrefix = tMsg.substring(0, between/2);
+				String tPostfix = tMsg.substring(tLen - between/2 , tLen);
+				al.add( isFirst?"":tPrefix + " ... " + tPostfix + tKeyword);
+				
+			}else{
+				al.add( tMsg + tKeyword);
+			}
+			
+			isFirst = false;
+			lastIndex = afterIndex;
+		}
+		
+		
+		
+		
+//		ArrayList<Pair> al = new ArrayList<Pair>();
+//		for(int i=0;i<keywords.length;i++){
+//			
+//			String tKeyword = prefix + keywords[i] + posfix;
+//			while((nowIndex = content.indexOf( tKeyword , nowIndex))!=-1){
+//				nowIndex+=1;
+//				int t = 0;
+//				if(nowIndex - between > lastIndex){
+//					t = nowIndex - between;	//记得断点
+//				}else{
+//					t = lastIndex + tKeyword.length();
+//				}
+//				
+//				if(between < nowIndex - lastIndex){	//如果是大于间距了					
+//					Pair p = new Pair(nowIndex,lastIndex);
+//					al.add(p);
+//				}
+//				lastIndex = nowIndex;
+//			}
+//		}
+		
+		ArrayList<String> keyArray = new ArrayList<String>();
+
+		
+		return null;
+	}
+	
 	
 	public void setSphinxSearch(SphinxUtils searchUtils){
 		this.searchUtils = searchUtils;
