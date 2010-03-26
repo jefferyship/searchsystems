@@ -149,8 +149,18 @@ public abstract class BaseStrategy {
 		return result.toString();
 	}
 	
-	
-	protected String formatKeyWord(String content,String[] keywords,int between,int maxTextLen , String prefix,String posfix){
+	/**
+	 * 
+	 * @param content
+	 * @param keywords
+	 * @param between
+	 * @param maxTextLen
+	 * @param prefix
+	 * @param posfix
+	 * @return
+	 * 					可以控制搜索结果字段的长度 by kernaling.wong@gmail.com	2010-03-27 00:40
+	 */
+	public static String formatKeyWord(String content,String[] keywords,int between,int maxTextLen , String prefix,String posfix){
 		if(content == null){
 			return null;
 		}
@@ -164,57 +174,60 @@ public abstract class BaseStrategy {
 		Matcher matcher = Pattern.compile(("(" + prefix+".+?"+posfix+")"), Pattern.DOTALL).matcher(content);
 
 		ArrayList<String> al = new ArrayList<String>();
-		int lastIndex = 0;
+		int lastIndex = 1;
 		boolean isFirst = true;
+		int beforIndex = 0 ;
+		int totalLen = 0;
+
 		while(matcher.find()){
 			String tKeyword = matcher.group(1).trim();
-			int beforIndex = content.indexOf(tKeyword);
+			beforIndex = content.indexOf(tKeyword,beforIndex);
 			int afterIndex = beforIndex+tKeyword.length();
 			
 			String tMsg = content.substring(lastIndex, beforIndex);
 			
 			int tLen = tMsg.length();
-			if(tLen > between){				
+	
+			if(tLen > between){	//相隔字符过长
 				String tPrefix = tMsg.substring(0, between/2);
 				String tPostfix = tMsg.substring(tLen - between/2 , tLen);
-				al.add( isFirst?"":tPrefix + " ... " + tPostfix + tKeyword);
+
+				if(totalLen > maxTextLen){	//如果是最大值
+					break;
+				}else{
+					al.add( (isFirst?"":tPrefix) + " ... " + tPostfix + tKeyword);					
+				}
+				totalLen+=between;
 				
 			}else{
-				al.add( tMsg + tKeyword);
+				if(totalLen > maxTextLen){	//如果是最大值
+					break;
+				}else{
+					al.add( tMsg + tKeyword);
+				}
+				totalLen+=tLen;
 			}
 			
 			isFirst = false;
 			lastIndex = afterIndex;
 		}
 		
-		
-		
-		
-//		ArrayList<Pair> al = new ArrayList<Pair>();
-//		for(int i=0;i<keywords.length;i++){
-//			
-//			String tKeyword = prefix + keywords[i] + posfix;
-//			while((nowIndex = content.indexOf( tKeyword , nowIndex))!=-1){
-//				nowIndex+=1;
-//				int t = 0;
-//				if(nowIndex - between > lastIndex){
-//					t = nowIndex - between;	//记得断点
-//				}else{
-//					t = lastIndex + tKeyword.length();
-//				}
-//				
-//				if(between < nowIndex - lastIndex){	//如果是大于间距了					
-//					Pair p = new Pair(nowIndex,lastIndex);
-//					al.add(p);
-//				}
-//				lastIndex = nowIndex;
-//			}
-//		}
-		
-		ArrayList<String> keyArray = new ArrayList<String>();
 
+		String endContent = content.substring(lastIndex, content.length());
 		
-		return null;
+		if(endContent.length() > between){
+			al.add(endContent.substring(0, between) + " ... ");
+		}else{
+			al.add(endContent);
+		}
+	
+		
+		StringBuffer sb = new StringBuffer();
+		for(String s:al){
+			sb.append(s);
+		}
+		
+		return sb.toString();
 	}
 	
 	
