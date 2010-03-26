@@ -23,35 +23,50 @@ public class TTT {
 		int lastIndex = 1;
 		boolean isFirst = true;
 		int beforIndex = 0 ;
+		int totalLen = 0;
+
 		while(matcher.find()){
 			String tKeyword = matcher.group(1).trim();
-			beforIndex++;
 			beforIndex = content.indexOf(tKeyword,beforIndex);
 			int afterIndex = beforIndex+tKeyword.length();
 			
 			String tMsg = content.substring(lastIndex, beforIndex);
 			
 			int tLen = tMsg.length();
-			if(tLen > between){				
+	
+			if(tLen > between){	//相隔字符过长
 				String tPrefix = tMsg.substring(0, between/2);
 				String tPostfix = tMsg.substring(tLen - between/2 , tLen);
-				al.add( (isFirst?"":tPrefix) + " ... " + tPostfix + tKeyword);
+
+				if(totalLen > maxTextLen){	//如果是最大值
+					break;
+				}else{
+					al.add( (isFirst?"":tPrefix) + " ... " + tPostfix + tKeyword);					
+				}
+				totalLen+=between;
 				
 			}else{
-				al.add( tMsg + tKeyword);
+				if(totalLen > maxTextLen){	//如果是最大值
+					break;
+				}else{
+					al.add( tMsg + tKeyword);
+				}
+				totalLen+=tLen;
 			}
 			
 			isFirst = false;
 			lastIndex = afterIndex;
 		}
 		
+
 		String endContent = content.substring(lastIndex, content.length());
-		int endLen = endContent.length();
-		if(endLen > between){
-			al.add(content.substring(0, between) + " ... ");
+		
+		if(endContent.length() > between){
+			al.add(endContent.substring(0, between) + " ... ");
 		}else{
 			al.add(endContent);
 		}
+	
 		
 		StringBuffer sb = new StringBuffer();
 		for(String s:al){
@@ -62,12 +77,13 @@ public class TTT {
 	}
 	
 	public static void main(String[] args) {
-		String s = "lksjflks你好jsl你好kjflsfds";
+		String s = "sdflksjflks你好jrhgv65411kgh不好fghddhjjjfghfghfdbsl你好kjdflksjslfsdfl";
 		
 		long l = System.currentTimeMillis();
-		String t = formatKeyWord(s,new String[]{"你好"}, 6, 3, "<B>", "</B>");
+		String t = formatKeyWord(s,new String[]{"你好","不好"}, 8, 20, "<B>", "</B>");
 		l = System.currentTimeMillis() - l;
 		System.out.println("Time:" + l + " ms");
+		System.out.println(s);
 		System.out.println(t);
 	}
 }
