@@ -169,60 +169,55 @@ public abstract class BaseStrategy {
 		{
 			content = content.replace(keywords[i], prefix + keywords[i] + posfix);
 		}
-
 		
-		Matcher matcher = Pattern.compile(("(" + prefix+".+?"+posfix+")"), Pattern.DOTALL).matcher(content);
+		Matcher matcher = Pattern.compile("("+prefix + ".+?" + posfix + ")" , Pattern.DOTALL).matcher(content);
+		
+		ArrayList<String> keyWordsArray = new ArrayList<String>();
+		while(matcher.find()){
+			keyWordsArray.add(matcher.group(1).trim());
+		}
 
-		ArrayList<String> al = new ArrayList<String>();
-		int lastIndex = 1;
-		boolean isFirst = true;
-		int beforIndex = 0 ;
+		String[] segText = content.split(prefix + ".+?" + posfix);
 		int totalLen = 0;
 
-		while(matcher.find()){
-			String tKeyword = matcher.group(1).trim();
-			beforIndex = content.indexOf(tKeyword,beforIndex);
-			int afterIndex = beforIndex+tKeyword.length();
-			
-			String tMsg = content.substring(lastIndex, beforIndex);
-			
-			int tLen = tMsg.length();
-	
-			if(tLen > between){	//相隔字符过长
-				String tPrefix = tMsg.substring(0, between/2);
-				String tPostfix = tMsg.substring(tLen - between/2 , tLen);
-
-				if(totalLen > maxTextLen){	//如果是最大值
-					break;
-				}else{
-					al.add( (isFirst?"":tPrefix) + " ... " + tPostfix + tKeyword);					
+		ArrayList<String> al = new ArrayList<String>();
+		
+		if(!keyWordsArray.isEmpty()){
+			for(int i=0;i<segText.length;i++){
+				String tmpText = segText[i].trim();
+				if(tmpText.equals("")){
+					continue;
 				}
-				totalLen+=between;
 				
-			}else{
-				if(totalLen > maxTextLen){	//如果是最大值
+				int tmpLen = tmpText.length();
+				
+				if(totalLen < maxTextLen){	//长度还没有到达最大值了			
+					if(tmpLen > between){	//如果是超过距离了
+						String prefixText = tmpText.substring(0 , between/2 );
+						String postfixText = tmpText.substring(tmpLen - between/2 , tmpLen);
+						al.add( (i==0?"":prefixText) + " ... " + ((i==segText.length-1)?(tmpText.length()>between ? tmpText.substring(0, between) +"..." : tmpText ):postfixText + keyWordsArray.get(i)));
+					}else{		//如果是不足的长度,则直接加入
+						al.add(tmpText + (i==segText.length-1?"":keyWordsArray.get(i)));
+					}
+				}else{	//长度已经达到最大值了
+					if(tmpLen > between){	//拿这个断点的文本长度判断是不否已经超过between值
+						al.add(tmpText.substring(0, between) + "...");
+					}else{
+						al.add(tmpText);
+					}
 					break;
-				}else{
-					al.add( tMsg + tKeyword);
 				}
-				totalLen+=tLen;
+				
+				totalLen+=tmpLen;
 			}
-			
-			isFirst = false;
-			lastIndex = afterIndex;
 		}
-		
 
-		String endContent = content.substring(lastIndex, content.length());
-		
-		if(endContent.length() > between){
-			al.add(endContent.substring(0, between) + " ... ");
-		}else{
-			al.add(endContent);
+		if(al.isEmpty()){
+			al.add( (content.length() > maxTextLen)?content.substring(0, maxTextLen):content);
 		}
-	
 		
 		StringBuffer sb = new StringBuffer();
+		
 		for(String s:al){
 			sb.append(s);
 		}
