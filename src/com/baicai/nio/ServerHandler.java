@@ -56,20 +56,26 @@ public class ServerHandler extends IoHandlerAdapter {
 			e.printStackTrace();
 		}
 		rb.clear();
-		//	md5值 
-		System.out.println(new Date() + "\t收到参数:" + query);
-//		final String md5 =StringUtils.MD5(query);
 		
-//		queryResult = (String)MemcacheUtils.get(md5);
+		final HashMap<String, String> map = getMap(query);
+		
+		final boolean isDebug = (map.get("isDebug") == null) ? false: map.get("isDebug").toString().equalsIgnoreCase("true");
+		
+		//	md5值 
+		if(isDebug){			
+			System.out.println(new Date() + "\t收到参数:" + query);
+		}
+		
 		queryResult = null;
-		System.out.println("-===========");
 		if (queryResult != null && !queryResult.equals("")) {
 			try {
 
+				if(isDebug){
+					System.out.println(new Date() + "命中缓存: param:" + map );
+				}
 				// 发送搜索结果至socket客户端,并关闭会话
 				encode = queryResult.getBytes("utf-8");
 				IoBuffer resultBuffer = IoBuffer.wrap(encode);
-
 				session.write(resultBuffer);
 			} catch (UnsupportedEncodingException e) {
 				// TODO Auto-generated catch block
@@ -79,24 +85,18 @@ public class ServerHandler extends IoHandlerAdapter {
 			}
 
 		} else {
-			final String query2 = query;
 			final IoSession session2 = session;
-			
-			System.out.println("开始使用... 1");
-			
 			Runnable run = new Runnable() {
 				public void run() {
 					try {
 						// TODO Auto-generated method stub
 						// 处理搜索请求
-						System.out.println("开始使用... 2");
-						HashMap<String, String> map = getMap(query2);
-//						long start = System.currentTimeMillis();
 						String queryResult = "";
 						if(ps != null){
-							System.out.println("=====");
 							queryResult = ps.execute(map);
-							System.out.println("返回:" + queryResult);
+							if(isDebug){
+								System.out.println("返回:" + queryResult);
+							}
 						}
 						if (queryResult != null && !queryResult.equals("")) {
 
@@ -149,10 +149,6 @@ public class ServerHandler extends IoHandlerAdapter {
 	@Override
 	public void sessionCreated(IoSession session) throws Exception {
 		// TODO Auto-generated method stub
-//		SocketSessionConfig cfg = (SocketSessionConfig) session.getConfig();
-//		cfg.setReceiveBufferSize(2 * 1024 * 1024);
-//		cfg.setReadBufferSize(2 * 1024 * 1024);
-
 	}
 
 }

@@ -64,8 +64,6 @@ public class DefaultRequestProcess extends RequestProcess {
 			sorts = " @relevance desc";
 		}
 		
-		System.out.println("开始搜索.....");
-		
 		StringBuffer returnResult = new StringBuffer();
 		returnResult.append("<XML>");
 		//如果是缓存中不存在
