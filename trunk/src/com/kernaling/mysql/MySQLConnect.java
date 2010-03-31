@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
+import com.kernaling.utils.ThreadUtils;
 import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.PreparedStatement;
 import com.mysql.jdbc.ResultSetMetaData;
@@ -31,8 +32,7 @@ public class MySQLConnect {
 		
 		Statement st = null;
 		ResultSet rs = null;
-		int time = 0;
-		while(time++<3){		//重试三次
+		while(true){		//重试三次
 			try{
 				Connection conn = pool.getConn();
 				st = conn.createStatement();
@@ -60,7 +60,13 @@ public class MySQLConnect {
 			
 			}catch(Exception ex){
 //				ex.printStackTrace();
-				System.out.println( new Date() + "\t重试:" + time +"\t原因:" + ex.getMessage());
+				System.out.println( new Date() + "\t休息1s \t原因:" + ex.getMessage());
+				ThreadUtils.sleepInSec(1);
+				
+				if(pool.size() == 0){
+					break;
+				}
+				
 			}finally{
 				close(st,rs);
 			}
@@ -77,8 +83,7 @@ public class MySQLConnect {
 	public long executeUpdate(String sql){
 		Statement st = null;
 		ResultSet rs = null;
-		int times = 0;
-		while(times++<3){
+		while( true ){
 			try{
 				Connection conn = pool.getConn();
 				st = conn.createStatement();
@@ -92,7 +97,13 @@ public class MySQLConnect {
 			
 				
 			}catch(Exception ex){
-				ex.printStackTrace();
+				System.out.println( new Date() + "\t休息1s \t原因:" + ex.getMessage());
+				ThreadUtils.sleepInSec(1);
+				
+				if(pool.size() == 0){
+					break;
+				}
+				
 			}finally{
 				close(st,rs);
 			}
@@ -120,9 +131,8 @@ public class MySQLConnect {
 	public boolean executePrepareSQL(String sql,Object[] values){
 		PreparedStatement st = null;
 		ResultSet rs = null;
-		int times = 0;
 		
-		while(times++<3){
+		while(true){
 			try{			
 				Connection conn = pool.getConn();
 				st = (PreparedStatement)conn.prepareStatement(sql);
@@ -156,7 +166,13 @@ public class MySQLConnect {
 				}
 				return true;
 			}catch(Exception ex){
-				ex.printStackTrace();
+				System.out.println( new Date() + "\t休息1s \t原因:" + ex.getMessage());
+				ThreadUtils.sleepInSec(1);
+				
+				if(pool.size() == 0){
+					break;
+				}
+				
 			}finally{
 				close(st,rs);
 			}

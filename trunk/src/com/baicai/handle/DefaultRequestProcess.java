@@ -107,7 +107,7 @@ public class DefaultRequestProcess extends RequestProcess {
 				tmpStaticResult.append(staticResult);
 			}
 			if(tmpStaticResult.length() > 0){
-				if(staticMD5 != null && !staticMD5.equals("")){					
+				if(staticMD5 != null && !staticMD5.equals("")){
 					SysConstants.StaticDataCache.put(staticMD5, tmpStaticResult.toString());
 				}
 				returnResult.append(tmpStaticResult);
