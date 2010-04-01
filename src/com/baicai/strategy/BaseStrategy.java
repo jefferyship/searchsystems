@@ -168,37 +168,38 @@ public abstract class BaseStrategy {
 		content = content.replaceAll("\\s+", " ");
 		for(int i=0;i<keywords.length;i++)
 		{
-			content = content.replace(keywords[i], prefix + keywords[i] + posfix);
+			content = content.replace( keywords[i], " " + prefix + keywords[i] + posfix + " ");
 		}
 		
 		Matcher matcher = Pattern.compile("("+prefix + ".+?" + posfix + ")" , Pattern.DOTALL).matcher(content);
 		
 		ArrayList<String> keyWordsArray = new ArrayList<String>();
+		boolean keyWordMatch = false;
 		while(matcher.find()){
 			keyWordsArray.add(matcher.group(1).trim());
+			keyWordMatch = true;
 		}
+		keyWordsArray.add("");
 
 		String[] segText = content.split(prefix + ".+?" + posfix);
 		int totalLen = 0;
 
 		ArrayList<String> al = new ArrayList<String>();
 		
-		if(!keyWordsArray.isEmpty()){
+		if(keyWordMatch){
 			for(int i=0;i<segText.length;i++){
 				String tmpText = segText[i].trim();
-				if(tmpText.equals("")){
-					continue;
-				}
-				
+				tmpText = tmpText.replaceAll("\\s+", "");
 				int tmpLen = tmpText.length();
 				
 				if(totalLen < maxTextLen){	//长度还没有到达最大值了			
 					if(tmpLen > between){	//如果是超过距离了
 						String prefixText = tmpText.substring(0 , between/2 );
 						String postfixText = tmpText.substring(tmpLen - between/2 , tmpLen);
-						al.add( (i==0?"":prefixText) + " ... " + ((i==segText.length-1)?(tmpText.length()>between ? tmpText.substring(0, between) +"..." : tmpText ):postfixText + keyWordsArray.get(i)));
+//						al.add( (i==0?"":prefixText) + " ... " + ((i==segText.length-1)?(tmpText.length()>between ? tmpText.substring(0, between) +"..." : tmpText ):postfixText + keyWordsArray.get(i)));
+						al.add( (i==0?"":prefixText) + " ... " + ((i!=0&&i==segText.length-1)?"":postfixText + keyWordsArray.get(i)));
 					}else{		//如果是不足的长度,则直接加入
-						al.add(tmpText + (i==segText.length-1?"":keyWordsArray.get(i)));
+						al.add(tmpText + keyWordsArray.get(i));
 					}
 				}else{	//长度已经达到最大值了
 					if(tmpLen > between){	//拿这个断点的文本长度判断是不否已经超过between值
