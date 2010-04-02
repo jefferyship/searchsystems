@@ -166,6 +166,7 @@ public abstract class BaseStrategy {
 		}
 
 		content = content.replaceAll("\\s+", " ");
+
 		for(int i=0;i<keywords.length;i++)
 		{
 			content = content.replace( keywords[i], " " + prefix + keywords[i] + posfix + " ");

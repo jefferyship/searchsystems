@@ -3,6 +3,8 @@ package com.baicai;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.wltea.analyzer.lucene.IKAnalyzer;
+
 import com.kernaling.mysql.MySQLConnect;
 import com.kernaling.mysql.MySQLPool;
 import com.kernaling.utils.FileUtils;
@@ -25,7 +27,6 @@ public class SysConstants {
 	final public static ConcurrentHashMap<String, Object> GrobleCache = new ConcurrentHashMap<String, Object>();
 	final public static ConcurrentHashMap<String, Object> StaticDataCache = new ConcurrentHashMap<String, Object>();
 	final public static ConcurrentHashMap<String, Object> DBDataCache = new ConcurrentHashMap<String, Object>();
-	
 	static{
 		String charset = "utf-8";
 		String configPath = "./config/config.txt";
