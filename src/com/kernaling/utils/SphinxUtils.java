@@ -65,6 +65,7 @@ public class SphinxUtils {
 			cl.SetServer ( host, port );
 			cl.SetWeights ( new int[] { 100, 1 } );
 			cl.SetMatchMode ( SphinxClient.SPH_MATCH_EXTENDED);	//全部都为扩展模式
+//			cl.SetMatchMode ( SphinxClient.SPH_MATCH_ANY);	//全部都为扩展模式
 			cl.SetLimits ( offset, limit );
 			cl.SetSortMode ( sortByMode, SortBy );
 			groupBy = groupBy == null ? "":groupBy;
