@@ -17,6 +17,11 @@ public class AnalyzerUtils {
 	 * 			分词器
 	 */
 	public static String[] tokenWords(String words,boolean isMaxWordLength){
+		
+		if(words == null){
+			return null;
+		}
+		
 		try{
 			ArrayList<String> al = new ArrayList<String>();
 			IKSegmentation seg = new IKSegmentation(new StringReader(words),isMaxWordLength);
