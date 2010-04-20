@@ -29,7 +29,7 @@ public class SphinxIndex extends Thread{
 	protected String SphinxTable = SysConstants.SphinxTable;
 	protected int dayBefor = SysConstants.dayBefor;
 	protected String SphinxPath = SysConstants.SphinxPath;
-	
+	private boolean isFirstTime = true;
 	final protected IndexConfig ic;
 	public SphinxIndex(IndexConfig ic){
 		this.ic = ic;
@@ -45,6 +45,7 @@ public class SphinxIndex extends Thread{
 			long start = TimeUtils.TimeInMills(0);
 			long[] updateTime = updateTime();
 			if(updateTime == null){	//如果为0表示MarkTimeTable并没有值,所以需要重新初始化之
+				System.out.println("为空了..........");
 				init();
 				updateTime = updateTime();
 			}
@@ -135,15 +136,18 @@ public class SphinxIndex extends Thread{
 		//记录了索引的最前时间
 		System.out.println(new Date() + "\t开始初始化....");
 		int tKeyID = (SysConstants.Type-1)*3 + 1;
-		if(ic.canResetIndex()){
-			for(int i=0;i<3;i++){				
-				String delete = "DELETE FROM " + SphinxTable + " WHERE CC_ID = " + (SysConstants.Type + i);
+		if(ic.canResetIndex() || isFirstTime){
+			isFirstTime = false;
+			for(int i=0;i<3;i++){
+				String delete = "DELETE FROM " + SphinxTable + " WHERE CC_ID = " + (tKeyID + i);
+				System.out.println("delete:" + delete);
 				SysConstants.mysqlconnect.executeUpdate(delete);
 			}
 		}
 		
 		List tList = SysConstants.mysqlconnect.executeQuery("SELECT * FROM " + SphinxTable +" WHERE CC_ID = " + tKeyID);
 		
+		System.out.println("SELECT :" + tList);
 		//最原始的时候
 		if(tList.isEmpty()){
 			long lastTime = (TimeUtils.TimeInMills(-dayBefor)/1000);
