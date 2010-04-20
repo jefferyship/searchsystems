@@ -35,6 +35,7 @@ public class IndexConfig {
 	public boolean canResetIndex(){
 		long timeInLong = TimeUtils.TimeInMills(0);
 		String tNowDay = TimeUtils.TimeInFormate(timeFormat, timeInLong);
+		System.out.println("tNowDay:" + tNowDay + "\tnowDay:" + nowDay);
 		return !nowDay.equals(tNowDay);
 	}
 }
