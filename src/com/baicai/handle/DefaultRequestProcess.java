@@ -1,5 +1,6 @@
 package com.baicai.handle;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -67,7 +68,8 @@ public class DefaultRequestProcess extends RequestProcess {
 		StringBuffer returnResult = new StringBuffer();
 		returnResult.append("<XML>");
 		//如果是缓存中不存在
-		List<Map<String,Object>> tList = sphinxSearch.search("main", perPage , querys ,  (nowPage-1)*perPage , sorts , SphinxClient.SPH_SORT_EXTENDED );
+		HashMap<String,Integer> weightMap = (HashMap<String,Integer>)pb.weightMap();
+		List<Map<String,Object>> tList = sphinxSearch.search("main", perPage , querys ,  (nowPage-1)*perPage , sorts , SphinxClient.SPH_SORT_EXPR,weightMap);
 		
 		if(tList == null){
 			System.out.println("搜索地址:"+SysConstants.SphinxHost+"\t端口:" + SysConstants.SphinxPort +"\t返回了空结果");
@@ -95,7 +97,7 @@ public class DefaultRequestProcess extends RequestProcess {
 				tmpStaticResult.append("<Statics>");
 				for(int i=0;i<staticQuerys.length;i++){
 					String staticField = staticQuerys[i];
-					List<Map<String,Object>> l = sphinxSearch.search("main", sortCount , querys , 0  , "@relevance desc" , SphinxClient.SPH_SORT_EXTENDED , staticField , "@count desc");
+					List<Map<String,Object>> l = sphinxSearch.search("main", sortCount , querys , 0  , "@relevance desc" , SphinxClient.SPH_SORT_EXTENDED , staticField , "@count desc" , null);
 					if(l.size()>1){
 						l.remove(0);
 					}

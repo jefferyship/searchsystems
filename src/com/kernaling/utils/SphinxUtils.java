@@ -59,12 +59,16 @@ public class SphinxUtils {
 		}
 	}
 	
-	public List<Map<String,Object>> search(String index,int  limit,String keywords,int offset,String SortBy,int sortByMode,String groupBy,String groupSort){
+	public List<Map<String,Object>> search(String index,int  limit,String keywords,int offset,String SortBy,int sortByMode,String groupBy,String groupSort,Map weightMap){
 		SphinxClient cl = new SphinxClient();
 		try{
 			cl.SetServer ( host, port );
 			cl.SetWeights ( new int[] { 100, 1 } );
 			cl.SetMatchMode ( SphinxClient.SPH_MATCH_EXTENDED);	//全部都为扩展模式
+			if(weightMap != null && !weightMap.isEmpty() ){
+				System.out.println("排序:" + weightMap);
+				cl.SetFieldeights(weightMap);
+			}
 //			cl.SetMatchMode ( SphinxClient.SPH_MATCH_ANY);	//全部都为扩展模式
 			cl.SetLimits ( offset, limit );
 			cl.SetSortMode ( sortByMode, SortBy );
@@ -171,11 +175,15 @@ public class SphinxUtils {
 	
 	
 	public List<Map<String,Object>> search(String index,int limit,String keywords,int offset){
-		return search(index,limit,keywords,offset,null,SphinxClient.SPH_SORT_RELEVANCE,null,null);
+		return search(index,limit,keywords,offset,null,SphinxClient.SPH_SORT_RELEVANCE,null,null,null);
 	}
 	
-	public List<Map<String,Object>> search(String index,int limit,String keywords,int offset,String sortBy,int sortMode){
-		return search(index,limit,keywords,offset,sortBy,sortMode,null,null);
+	public List<Map<String,Object>> search(String index,int limit,String keywords,int offset,Map weightMap){
+		return search(index,limit,keywords,offset,null,SphinxClient.SPH_SORT_EXPR,null,null,weightMap);
+	}
+	
+	public List<Map<String,Object>> search(String index,int limit,String keywords,int offset,String sortBy,int sortMode,Map weight){
+		return search(index,limit,keywords,offset,sortBy,sortMode,null,null,weight);
 	}
 	
 	/**
@@ -217,17 +225,5 @@ public class SphinxUtils {
 			ex.printStackTrace();
 		}
 		return -1;
-	}
-	
-	
-	public static void main(String args[]){
-		String host = "192.168.1.2";
-		int port = 3333;
-		
-		SphinxUtils utils = SphinxUtils.getInstance(host, port);
-		List<Map<String,Object>> l = utils.search("main", 10 , "教育", 0 , "@relevance desc" , SphinxClient.SPH_SORT_EXTENDED , "ci_typeid" , "@count desc");
-//		List<Map<String,Object>> l = utils.search("main", 50, "@MB_Title 武大解聘", 0 );
-
-		utils.ResultInfo(l);
 	}
 }
