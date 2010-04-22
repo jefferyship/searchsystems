@@ -69,7 +69,7 @@ public class DefaultRequestProcess extends RequestProcess {
 		returnResult.append("<XML>");
 		//如果是缓存中不存在
 		HashMap<String,Integer> weightMap = (HashMap<String,Integer>)pb.weightMap();
-		List<Map<String,Object>> tList = sphinxSearch.search("main", perPage , querys ,  (nowPage-1)*perPage , sorts , SphinxClient.SPH_SORT_EXPR,weightMap);
+		List<Map<String,Object>> tList = sphinxSearch.search("main", perPage , querys ,  (nowPage-1)*perPage , sorts , SphinxClient.SPH_SORT_RELEVANCE,weightMap);
 		
 		if(tList == null){
 			System.out.println("搜索地址:"+SysConstants.SphinxHost+"\t端口:" + SysConstants.SphinxPort +"\t返回了空结果");
